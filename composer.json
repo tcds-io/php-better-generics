@@ -1,0 +1,45 @@
+{
+  "name": "tcds-io/php-better-generics",
+  "type": "library",
+  "description": "PHP library to better work with generics",
+  "require": {
+    "php": "^8.4"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10.5",
+    "phpstan/phpstan": "^2.1",
+    "slevomat/coding-standard": "^8.15"
+  },
+  "scripts": {
+    "cs:check": "vendor/bin/phpcs --colors -ps",
+    "test:stan": "vendor/bin/phpstan analyse src --level=max --ansi",
+    "test:unit": "vendor/bin/phpunit --testdox --color=always",
+    "tests": [
+      "@cs:check",
+      "@test:stan",
+      "@test:unit"
+    ]
+  },
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Tcds\\Io\\Generic\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tcds\\Io\\Generic\\": "tests/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Thiago Cordeiro",
+      "email": "source@tcds.io"
+    }
+  ],
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  }
+}
