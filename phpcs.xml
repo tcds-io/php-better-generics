@@ -67,18 +67,13 @@
         <exclude name="SlevomatCodingStandard.Functions.DisallowEmptyFunction.EmptyFunction"/>
         <exclude name="SlevomatCodingStandard.PHP.DisallowReference.DisallowedInheritingVariableByReference"/>
         <exclude name="SlevomatCodingStandard.PHP.RequireExplicitAssertion.RequiredExplicitAssertion"/>
+        <exclude name="SlevomatCodingStandard.Commenting.InlineDocCommentDeclaration.InvalidFormat"/>
+        <exclude name="Generic.Files.LineLength.TooLong"/>
+        <exclude name="SlevomatCodingStandard.Files.LineLength.LineTooLong"/>
     </rule>
 
-    <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint">
-        <exclude-pattern>src/Serializer.php</exclude-pattern>
-        <exclude-pattern>src/ArraySerializer.php</exclude-pattern>
-        <exclude-pattern>src/JsonSerializer.php</exclude-pattern>
-    </rule>
-
-    <rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint">
-        <exclude-pattern>src/Serializer.php</exclude-pattern>
-        <exclude-pattern>src/ArraySerializer.php</exclude-pattern>
-        <exclude-pattern>src/JsonSerializer.php</exclude-pattern>
+    <rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
+        <exclude-pattern>tests/**</exclude-pattern>
     </rule>
 
     <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses">

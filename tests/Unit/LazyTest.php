@@ -12,14 +12,14 @@ use Tcds\Io\Generic\Lazy;
 
 class LazyTest extends TestCase
 {
-    #[Test] public function shouldAccessLazyMethodWithoutAnnotations(): void
+    #[Test] public function should_access_lazy_method_without_annotations(): void
     {
         $bar = Lazy::of(Bar::class)->create(fn() => new Bar('bar'));
 
         $this->assertEquals("bar-bar", $bar->getDuplicateName());
     }
 
-    #[Test] public function shouldCreateObjectInjectingLazyProperties(): void
+    #[Test] public function should_create_object_injecting_lazy_properties(): void
     {
         $initialized = 0;
         $bar = Lazy::of(Bar::class)->create(function () use (&$initialized) {
@@ -31,11 +31,10 @@ class LazyTest extends TestCase
         $this->assertEquals(0, $initialized);
 
         $foo = new Foo('foo', $bar);
-        $foo->bar->name;
-        $foo->bar->name;
-        $foo->bar->name;
+        $string = "{$foo->bar->value}-{$foo->bar->value}-{$foo->bar->value}";
 
         $this->assertEquals(1, $initialized);
         $this->assertEquals(new Bar('bar'), $foo->bar);
+        $this->assertEquals("bar-bar-bar", $string);
     }
 }

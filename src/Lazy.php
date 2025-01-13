@@ -7,19 +7,20 @@ namespace Tcds\Io\Generic;
 use ReflectionClass;
 
 /**
- * @template T of object
- * @param class-string<T> $class
+ * @template GenericItem of object
+ * @param class-string<GenericItem> $class
  */
 final readonly class Lazy
 {
     /**
-     * @param class-string<T> $class
+     * @param class-string<GenericItem> $class
      */
     private function __construct(private string $class)
     {
     }
 
     /**
+     * @template T of object
      * @param class-string<T> $class
      * @return self<T>
      */
@@ -29,16 +30,14 @@ final readonly class Lazy
     }
 
     /**
-     * @param callable(): T $factory
-     * @return T
+     * @param callable(): GenericItem $factory
+     * @return GenericItem
      */
     public function create(callable $factory)
     {
         $reflector = new ReflectionClass($this->class);
 
-        /** @var T $lazy */
-        $lazy = $reflector->newLazyProxy($factory);
-
-        return $lazy;
+        /** @var GenericItem */
+        return $reflector->newLazyProxy($factory);
     }
 }

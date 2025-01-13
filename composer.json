@@ -12,7 +12,7 @@
   },
   "scripts": {
     "cs:check": "vendor/bin/phpcs --colors -ps",
-    "test:stan": "vendor/bin/phpstan analyse src --level=max --ansi",
+    "test:stan": "vendor/bin/phpstan analyse -c phpstan.neon",
     "test:unit": "vendor/bin/phpunit --testdox --color=always",
     "tests": [
       "@cs:check",
