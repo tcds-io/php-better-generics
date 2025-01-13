@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tcds\Io\Generic;
 
 use IteratorAggregate;
+use OutOfRangeException;
 use Traversable;
 
 /**
@@ -28,6 +29,38 @@ readonly class ArrayList implements IteratorAggregate
         foreach ($this->items as $item) {
             yield $item;
         }
+    }
+
+    /**
+     * Split an array into chunks
+     *
+     * @param int<1, max> $length
+     * @return self<self<GenericItem>>
+     */
+    public function chunk(int $length): self
+    {
+        return new self(
+            array_map(
+                fn(array $chunk) => new self($chunk),
+                array_chunk($this->items, $length),
+            ),
+        );
+    }
+
+    /**
+     * @param GenericItem $item
+     */
+    public function contains($item): bool
+    {
+        return in_array($item, $this->items, true);
+    }
+
+    /**
+     * Count the number of items in the current ArrayList
+     */
+    public function count(): int
+    {
+        return count($this->items);
     }
 
     /**
@@ -156,35 +189,11 @@ readonly class ArrayList implements IteratorAggregate
     }
 
     /**
-     * Split an array into chunks
-     *
-     * @param int<1, max> $length
-     * @return self<self<GenericItem>>
-     */
-    public function chunk(int $length): self
-    {
-        return new self(
-            array_map(
-                fn(array $chunk) => new self($chunk),
-                array_chunk($this->items, $length),
-            ),
-        );
-    }
-
-    /**
-     * Count the number of items in the current ArrayList
-     */
-    public function count(): int
-    {
-        return count($this->items);
-    }
-
-    /**
      * Verifies if the current array list is empty
      */
     public function isEmpty(): bool
     {
-        return count($this->items) === 0;
+        return $this->count() === 0;
     }
 
     /**
@@ -192,7 +201,7 @@ readonly class ArrayList implements IteratorAggregate
      */
     public function isNotEmpty(): bool
     {
-        return count($this->items) > 0;
+        return $this->count() > 0;
     }
 
     /**
@@ -248,5 +257,23 @@ readonly class ArrayList implements IteratorAggregate
         }
 
         return new self($merged);
+    }
+
+    /**
+     * @return GenericItem
+     */
+    public function get(int $index)
+    {
+        return $this->items[$index] ?? throw new OutOfRangeException("Index $index does not exist");
+    }
+
+    /**
+     * @param GenericItem $item
+     */
+    public function indexOf($item): int
+    {
+        $index = array_search($item, $this->items, true);
+
+        return $index ?: throw new OutOfRangeException("No matching item found in the list");
     }
 }

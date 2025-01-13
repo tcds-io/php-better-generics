@@ -7,6 +7,7 @@
          processIsolation="false"
          backupGlobals="false"
          stopOnFailure="false"
+         displayDetailsOnTestsThatTriggerWarnings="true"
          colors="true">
     <testsuites>
         <testsuite name="Unit Test Suite">
