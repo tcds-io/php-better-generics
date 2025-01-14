@@ -9,10 +9,11 @@ use OutOfRangeException;
 use Traversable;
 
 /**
+ * @phpstan-type Primitive string|int|float|bool
  * @template GenericItem
  * @implements IteratorAggregate<int, GenericItem>
  */
-readonly class ArrayList implements IteratorAggregate
+class ArrayList implements IteratorAggregate
 {
     /**
      * @param list<GenericItem> $items
@@ -57,10 +58,14 @@ readonly class ArrayList implements IteratorAggregate
 
     /**
      * Count the number of items in the current ArrayList
+     *
+     * @param (callable(GenericItem $item): bool)|null $callable
      */
-    public function count(): int
+    public function count(?callable $callable = null): int
     {
-        return count($this->items);
+        return $callable !== null
+            ? $this->filter($callable)->count()
+            : count($this->items);
     }
 
     /**
@@ -112,6 +117,15 @@ readonly class ArrayList implements IteratorAggregate
     }
 
     /**
+     * @noinspection PhpUndefinedClassInspection
+     * @return self<value-of<GenericItem>>
+     */
+    public function flatten(): self
+    {
+        return $this->flatMap(fn($item) => $item);
+    }
+
+    /**
      * @return self<GenericItem>
      */
 
@@ -122,7 +136,9 @@ readonly class ArrayList implements IteratorAggregate
      */
     public function reverse(): self
     {
-        return new self(array_reverse($this->items));
+        return new self(
+            array_reverse($this->items),
+        );
     }
 
     /**
@@ -149,13 +165,17 @@ readonly class ArrayList implements IteratorAggregate
      */
     public function reduce(callable $callable, $initial)
     {
-        return array_reduce($this->items, $callable, $initial);
+        return array_reduce(
+            $this->items,
+            $callable,
+            $initial,
+        );
     }
 
     /**
      * Returns the first element of the array matching the specified condition
      *
-     * @param callable(GenericItem $item): bool|null $condition <p>
+     * @param (callable(GenericItem $item): bool)|null $condition <p>
      *  When condition is empty, the first element in the array is returned
      *  </p>
      * @return GenericItem|null
@@ -178,7 +198,7 @@ readonly class ArrayList implements IteratorAggregate
     /**
      * Returns the last element of the array matching the specified condition
      *
-     * @param callable(GenericItem $item): bool|null $condition <p>
+     * @param (callable(GenericItem $item): bool)|null $condition <p>
      *  When condition is empty, the last element in the array is returned
      *  </p>
      * @return GenericItem|null
@@ -205,7 +225,7 @@ readonly class ArrayList implements IteratorAggregate
     }
 
     /**
-     * @param callable(GenericItem $item): bool|null $callable [optional] <p>
+     * @param (callable(GenericItem $item): bool)|null $callable [optional] <p>
      *  The callback function to use
      *  </p>
      *  <p>
@@ -236,25 +256,17 @@ readonly class ArrayList implements IteratorAggregate
     }
 
     /**
-     * @param self<GenericItem> $other
-     * @return self<GenericItem>
-     */
-
-    /**
      * Merges the elements of one or more ArrayList together (if the input arrays have the same string keys,
      * then the later value for that key will overwrite the previous one;
      * if the arrays contain numeric keys, the later value will be appended)
      *
-     * @param ArrayList<GenericItem> ...$others <p>Variable list of arrays to merge.</p>
+     * @param self<GenericItem> ...$others <p>Variable list of arrays to merge.</p>
      * @return self<GenericItem>
      */
     public function merge(self ...$others): self
     {
-        $merged = $this->items;
-
-        foreach ($others as $other) {
-            array_push($merged, ...$other->items);
-        }
+        /** @var list<GenericItem> $merged */
+        $merged = array_merge($this->items, ...$this->plain($others));
 
         return new self($merged);
     }
@@ -275,5 +287,52 @@ readonly class ArrayList implements IteratorAggregate
         $index = array_search($item, $this->items, true);
 
         return $index ?: throw new OutOfRangeException("No matching item found in the list");
+    }
+
+    /**
+     * @param self<GenericItem> ...$others
+     * @return self<GenericItem>
+     */
+    public function diff(self ...$others): self
+    {
+        $diff = array_diff($this->items, ...$this->plain($others));
+
+        return new self(array_values($diff));
+    }
+
+    /**
+     * @param self<GenericItem> ...$others
+     * @return self<GenericItem>
+     */
+    public function intersect(self ...$others): self
+    {
+        $intersection = array_intersect($this->items, ...$this->plain($others));
+
+        return new self(array_values($intersection));
+    }
+
+    /**
+     * @noinspection PhpUndefinedClassInspection
+     * @param (callable(GenericItem $item): Primitive)|null $callable
+     */
+    public function join(string $separator = "", ?callable $callable = null): string
+    {
+        $list = $callable !== null
+            ? $this->map($callable)
+            : $this;
+
+        return join($separator, $list->items);
+    }
+
+    /**
+     * @param array<self<GenericItem>> $lists
+     * @return array<array<GenericItem>>
+     */
+    private function plain(array $lists): array
+    {
+        return array_map(
+            fn(self $other) => $other->items,
+            $lists,
+        );
     }
 }
