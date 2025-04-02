@@ -6,14 +6,13 @@ namespace Tcds\Io\Generic\Unit\ArrayList;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Tcds\Io\Generic\ArrayList;
 use Tcds\Io\Generic\Fixtures\Bar;
 
 class ArrayListJoinTest extends TestCase
 {
     #[Test] public function given_a_primitive_array_list_then_join_its_values(): void
     {
-        $list = new ArrayList(["1", "2", "3"]);
+        $list = listOf("1", "2", "3");
 
         $noSeparator = $list->join();
         $commaSpaceSeparator = $list->join(", ");
@@ -26,11 +25,11 @@ class ArrayListJoinTest extends TestCase
 
     #[Test] public function given_an_object_array_list_then_join_its_values(): void
     {
-        $list = new ArrayList([
+        $list = listOf(
             new Bar("1"),
             new Bar("2"),
             new Bar("3"),
-        ]);
+        );
 
         $noSeparator = $list->join(callable: fn(Bar $item) => $item->value);
         $commaSpaceSeparator = $list->join(", ", fn(Bar $item) => $item->value);

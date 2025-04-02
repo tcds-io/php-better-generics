@@ -24,7 +24,10 @@
   "autoload": {
     "psr-4": {
       "Tcds\\Io\\Generic\\": "src/"
-    }
+    },
+    "files": [
+      "src/functional/functions.php"
+    ]
   },
   "autoload-dev": {
     "psr-4": {

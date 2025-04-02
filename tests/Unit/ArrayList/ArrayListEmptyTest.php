@@ -24,12 +24,12 @@ class ArrayListEmptyTest extends TestCase
 
     #[Test] public function given_an_array_list_when_it_contains_items_then_it_is_not_empty(): void
     {
-        $list = new ArrayList([
+        $list = listOf(
             new Bar("1"),
             new Bar("2"),
             new Bar("3"),
             new Bar("4"),
-        ]);
+        );
 
         $isEmpty = $list->isEmpty();
         $isNotEmpty = $list->isNotEmpty();

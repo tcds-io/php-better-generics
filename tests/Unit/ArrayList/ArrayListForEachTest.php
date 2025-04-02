@@ -11,7 +11,24 @@ use Tcds\Io\Generic\Fixtures\Bar;
 
 class ArrayListForEachTest extends TestCase
 {
-    #[Test] public function given_an_array_list_when_foreach_is_called_then_apply_callback_to_each_array_item(): void
+    #[Test] public function given_an_array_list_then_run_standard_foreach(): void
+    {
+        $list = new ArrayList([
+            new Bar("1"),
+            new Bar("2"),
+            new Bar("3"),
+        ]);
+
+        $sum = 0;
+
+        foreach ($list as $item) {
+            $sum += intval($item->value);
+        }
+
+        $this->assertEquals(6, $sum);
+    }
+
+    #[Test] public function given_an_array_list_then_run_functional_foreach(): void
     {
         $list = new ArrayList([
             new Bar("1"),
