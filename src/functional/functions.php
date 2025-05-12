@@ -23,6 +23,12 @@ function lazyOf(string $class, callable $initializer): object
     return $reflector->newLazyProxy($initializer);
 }
 
+function initializeLazyObject(object $lazy): void
+{
+    $reflector = new ReflectionClass($lazy);
+    $reflector->initializeLazyObject($lazy);
+}
+
 /**
  * @template T
  * @param T ...$items

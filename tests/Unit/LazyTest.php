@@ -36,4 +36,43 @@ class LazyTest extends TestCase
         $this->assertEquals(new Bar('bar'), $foo->bar);
         $this->assertEquals("bar-bar-bar", $string);
     }
+
+    #[Test] public function initialize_lazy_object(): void
+    {
+        $bar = lazyOf(Bar::class, fn() => new Bar('bar'));
+        $this->assertEmptyLazyObject($bar);
+
+        initializeLazyObject($bar);
+
+        $this->assertInitializedLazyObject($bar);
+    }
+
+    private function assertEmptyLazyObject(object $object): void
+    {
+        $this->assertEquals(
+            <<<STRING
+            Tcds\Io\Generic\Fixtures\Bar Object
+            (
+            )
+            STRING,
+            trim(print_r($object, true)),
+        );
+    }
+
+    private function assertInitializedLazyObject(object $object): void
+    {
+        $this->assertEquals(
+            <<<STRING
+            Tcds\Io\Generic\Fixtures\Bar Object
+            (
+                [instance] => Tcds\Io\Generic\Fixtures\Bar Object
+                    (
+                        [value] => bar
+                    )
+
+            )
+            STRING,
+            trim(print_r($object, true)),
+        );
+    }
 }
