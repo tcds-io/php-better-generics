@@ -19,7 +19,7 @@ class LazyBufferTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->buffer = new LazyBuffer(
+        $this->buffer = lazyBufferOf(
             Bar::class,
             fn(array $values) => $this->loadEntriesByValue($values),
         );
