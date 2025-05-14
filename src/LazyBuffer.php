@@ -31,7 +31,7 @@ class LazyBuffer
      * @param Key $key
      * @return Value
      */
-    public function get($key)
+    public function lazyOf($key)
     {
         if (!isset($this->buffered[$key]) && !isset($this->loaded[$key])) {
             $this->buffered[$key] = $key;

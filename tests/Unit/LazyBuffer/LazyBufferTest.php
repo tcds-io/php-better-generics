@@ -27,8 +27,8 @@ class LazyBufferTest extends TestCase
 
     #[Test] public function given_a_lazy_buffer_when_values_are_not_initialized_accessed_then_buffer_and_do_not_load(): void
     {
-        $this->buffer->get('first');
-        $this->buffer->get('second');
+        $this->buffer->lazyOf('first');
+        $this->buffer->lazyOf('second');
 
         $this->assertEquals(['first' => 'first', 'second' => 'second'], $this->buffer->buffered);
         $this->assertEquals([], $this->buffer->loaded);
@@ -37,8 +37,8 @@ class LazyBufferTest extends TestCase
 
     #[Test] public function given_a_lazy_buffer_when_values_any_value_is_initialized_then_load_and_reset_cache(): void
     {
-        $first = $this->buffer->get('first');
-        $this->buffer->get('second');
+        $first = $this->buffer->lazyOf('first');
+        $this->buffer->lazyOf('second');
 
         initializeLazyObject($first);
 
@@ -49,12 +49,12 @@ class LazyBufferTest extends TestCase
 
     #[Test] public function given_a_lazy_buffer_when_values_are_loaded_then_do_not_load_twice(): void
     {
-        $first = $this->buffer->get('first');
-        $this->buffer->get('second');
+        $first = $this->buffer->lazyOf('first');
+        $this->buffer->lazyOf('second');
         initializeLazyObject($first);
 
-        $this->buffer->get('first');
-        $this->buffer->get('second');
+        $this->buffer->lazyOf('first');
+        $this->buffer->lazyOf('second');
 
         $this->assertEquals([], $this->buffer->buffered);
         $this->assertEquals(['first' => new Bar('first'), 'second' => new Bar('second')], $this->buffer->loaded);
