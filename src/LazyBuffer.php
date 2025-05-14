@@ -14,10 +14,10 @@ use RuntimeException;
 class LazyBuffer
 {
     /** @var array<Key, Key> */
-    public private(set) array $buffered = [];
+    private array $buffered = [];
 
     /** @var array<Key, Value> */
-    public private(set) array $loaded = [];
+    private array $loaded = [];
 
     public function __construct(
         /** @var class-string<Value> */

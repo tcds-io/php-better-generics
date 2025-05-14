@@ -6,6 +6,7 @@ namespace Tcds\Io\Generic\Unit\LazyBuffer;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use Tcds\Io\Generic\Fixtures\Bar;
 use Tcds\Io\Generic\LazyBuffer;
 
@@ -30,8 +31,8 @@ class LazyBufferTest extends TestCase
         $this->buffer->lazyOf('first');
         $this->buffer->lazyOf('second');
 
-        $this->assertEquals(['first' => 'first', 'second' => 'second'], $this->buffer->buffered);
-        $this->assertEquals([], $this->buffer->loaded);
+        $this->assertEquals(['first' => 'first', 'second' => 'second'], $this->buffered());
+        $this->assertEquals([], $this->loaded());
         $this->assertEquals([], $this->loads);
     }
 
@@ -42,8 +43,8 @@ class LazyBufferTest extends TestCase
 
         initializeLazyObject($first);
 
-        $this->assertEquals([], $this->buffer->buffered);
-        $this->assertEquals(['first' => new Bar('first'), 'second' => new Bar('second')], $this->buffer->loaded);
+        $this->assertEquals([], $this->buffered());
+        $this->assertEquals(['first' => new Bar('first'), 'second' => new Bar('second')], $this->loaded());
         $this->assertEquals([['first', 'second']], $this->loads);
     }
 
@@ -56,8 +57,8 @@ class LazyBufferTest extends TestCase
         $this->buffer->lazyOf('first');
         $this->buffer->lazyOf('second');
 
-        $this->assertEquals([], $this->buffer->buffered);
-        $this->assertEquals(['first' => new Bar('first'), 'second' => new Bar('second')], $this->buffer->loaded);
+        $this->assertEquals([], $this->buffered());
+        $this->assertEquals(['first' => new Bar('first'), 'second' => new Bar('second')], $this->loaded());
         $this->assertEquals([['first', 'second']], $this->loads);
     }
 
@@ -73,5 +74,29 @@ class LazyBufferTest extends TestCase
             ->filter(fn(Bar $bar) => in_array($bar->value, $values, true))
             ->indexedBy(fn(Bar $bar) => $bar->value)
             ->entries();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function buffered(): array
+    {
+        $reflection = new ReflectionClass($this->buffer);
+        $property = $reflection->getProperty('buffered');
+
+        /** @var array<string, string> */
+        return $property->getValue($this->buffer);
+    }
+
+    /**
+     * @return array<string, Bar>
+     */
+    private function loaded(): array
+    {
+        $reflection = new ReflectionClass($this->buffer);
+        $property = $reflection->getProperty('loaded');
+
+        /** @var array<string, Bar> */
+        return $property->getValue($this->buffer);
     }
 }
