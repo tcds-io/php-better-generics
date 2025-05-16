@@ -17,6 +17,6 @@ class MutableArrayListTest extends TestCase
 
         $mutableArrayList->push('bar');
 
-        $this->assertEquals(['foo', 'bar'], $mutableArrayList->items);
+        $this->assertEquals(['foo', 'bar'], $mutableArrayList->items());
     }
 }
