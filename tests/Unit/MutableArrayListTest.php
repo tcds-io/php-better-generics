@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tcds\Io\Generic\Unit\MutableArrayList;
+namespace Tcds\Io\Generic\Unit;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
