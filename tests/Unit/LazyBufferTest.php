@@ -62,6 +62,22 @@ class LazyBufferTest extends TestCase
         $this->assertEquals([['first', 'second']], $this->loads);
     }
 
+    #[Test] public function given_a_lazy_buffer_max_buffer_size_is_reached_then_flush_buffer(): void
+    {
+        $buffer = lazyBufferOf(
+            Bar::class,
+            fn(array $values) => $this->loadEntriesByValue($values),
+            maxBufferSize: 3,
+        );
+
+        $buffer->lazyOf('first');
+        $buffer->lazyOf('second');
+        $this->assertEquals([], $this->loads);
+
+        $buffer->lazyOf('third');
+        $this->assertEquals([['first', 'second', 'third']], $this->loads);
+    }
+
     /**
      * @param list<string> $values
      * @return array<string, Bar>
