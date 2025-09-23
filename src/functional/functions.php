@@ -93,3 +93,14 @@ function mutableMapOf(array $entries): MutableMap
     /** @var MutableMap<Key, Value> */
     return new MutableMap($entries);
 }
+
+/**
+ * @template Params
+ * @template T
+ * @param callable(Params ...$params): T $callable
+ * @return T
+ */
+function run(callable $callable)
+{
+    return $callable();
+}
