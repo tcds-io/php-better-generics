@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Tcds\Io\Generic\Reflection;
+namespace Tcds\Io\Generic\Reflection\Type;
 
-class Annotation
+class TypeParser
 {
     public static function param(string $docblock, string $name): ?string
     {
@@ -42,6 +42,28 @@ class Annotation
         }
 
         return [$type, $generics];
+    }
+
+    /**
+     * @return array{ 0: string, 1: array<string, string> }
+     */
+    public static function shapeParamMap(string $shape): array
+    {
+        preg_match_all('/(\w+)\s*:\s*([^,\s}]+)/', $shape, $pairs, PREG_SET_ORDER);
+
+        $params = [];
+
+        foreach ($pairs as $pair) {
+            $name = $pair[1];
+            $params[$name] = $pair[2];
+        }
+
+        $type = match (true) {
+            str_starts_with($shape, 'object') => 'object',
+            default => 'array',
+        };
+
+        return [$type, $params];
     }
 
     private static function extract(string $docblock, string $pattern, int $matchIndex = 1): ?string

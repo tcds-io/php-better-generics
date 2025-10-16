@@ -8,7 +8,6 @@ use BackedEnum;
 use ReflectionFunctionAbstract;
 use ReflectionType as OriginalReflectionType;
 use Tcds\Io\Generic\BetterGenericException;
-use Tcds\Io\Generic\Reflection\Annotation;
 use Tcds\Io\Generic\Reflection\ReflectionClass;
 use Tcds\Io\Generic\Reflection\ReflectionMethod;
 use Tcds\Io\Generic\Reflection\ReflectionParameter;
@@ -61,7 +60,7 @@ class ReflectionType extends OriginalReflectionType
         ReflectionMethod|ReflectionFunctionAbstract $functionOrMethod,
         ReflectionProperty|ReflectionParameter $paramOrProperty,
     ): string {
-        return Annotation::param(
+        return TypeParser::param(
             docblock: $functionOrMethod->getDocComment() ?: '',
             name: $paramOrProperty->name,
         ) ?: $paramOrProperty->getOriginalType()->getName();
@@ -69,7 +68,7 @@ class ReflectionType extends OriginalReflectionType
 
     private static function getReturnTypeForMethod(ReflectionMethod $method): string
     {
-        return Annotation::return(
+        return TypeParser::return(
             docblock: $method->getDocComment() ?: '',
         ) ?: $method->getOriginalReturnType()->getName();
     }
@@ -95,7 +94,7 @@ class ReflectionType extends OriginalReflectionType
 
     public static function isGeneric(string $type): bool
     {
-        [, $generics] = Annotation::typesOf($type);
+        [, $generics] = TypeParser::typesOf($type);
 
         return !empty($generics);
     }
@@ -107,7 +106,7 @@ class ReflectionType extends OriginalReflectionType
 
     public static function isList(string $type): bool
     {
-        [$type] = Annotation::typesOf($type);
+        [$type] = TypeParser::typesOf($type);
 
         return ($type === 'list')
             || ($type === 'iterable')

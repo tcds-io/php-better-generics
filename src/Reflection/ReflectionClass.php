@@ -9,6 +9,7 @@ use ReflectionClass as OriginalReflectionClass;
 use ReflectionProperty as OriginalReflectionProperty;
 use Tcds\Io\Generic\BetterGenericException;
 use Tcds\Io\Generic\Reflection\Type\ReflectionType;
+use Tcds\Io\Generic\Reflection\Type\TypeParser;
 
 /**
  * @extends OriginalReflectionClass<object>
@@ -29,7 +30,7 @@ class ReflectionClass extends OriginalReflectionClass
         /**
          * @var class-string $class
          */
-        [$class, $generics] = Annotation::typesOf($type);
+        [$class, $generics] = TypeParser::typesOf($type);
 
         parent::__construct($class);
 
