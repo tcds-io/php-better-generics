@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace Tcds\Io\Generic\Unit\ArrayList;
 
+use OutOfRangeException;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
-use Tcds\Io\Generic\ExpectThrows;
+use Tcds\Io\Generic\BetterGenericTestCase;
 
-class ArrayListIndexOfTest extends TestCase
+class ArrayListIndexOfTest extends BetterGenericTestCase
 {
-    use ExpectThrows;
-
     #[Test] public function given_an_item_when_it_is_present_in_the_list_then_return_its_index(): void
     {
         $list = listOf("1", "2", "3");
@@ -25,7 +23,7 @@ class ArrayListIndexOfTest extends TestCase
     {
         $list = listOf("1", "2", "3");
 
-        $exception = $this->expectThrows(fn() => $list->indexOf("10"));
+        $exception = $this->expectThrows(OutOfRangeException::class, fn() => $list->indexOf("10"));
 
         $this->assertEquals("No matching item found in the list", $exception->getMessage());
     }
