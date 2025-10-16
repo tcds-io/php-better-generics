@@ -60,7 +60,7 @@ class ReflectionType extends OriginalReflectionType
         ReflectionMethod|ReflectionFunctionAbstract $functionOrMethod,
         ReflectionProperty|ReflectionParameter $paramOrProperty,
     ): string {
-        return TypeParser::param(
+        return TypeParser::getParamFromDocblock(
             docblock: $functionOrMethod->getDocComment() ?: '',
             name: $paramOrProperty->name,
         ) ?: $paramOrProperty->getOriginalType()->getName();
@@ -68,7 +68,7 @@ class ReflectionType extends OriginalReflectionType
 
     private static function getReturnTypeForMethod(ReflectionMethod $method): string
     {
-        return TypeParser::return(
+        return TypeParser::getReturnFromDocblock(
             docblock: $method->getDocComment() ?: '',
         ) ?: $method->getOriginalReturnType()->getName();
     }
@@ -94,7 +94,7 @@ class ReflectionType extends OriginalReflectionType
 
     public static function isGeneric(string $type): bool
     {
-        [, $generics] = TypeParser::typesOf($type);
+        [, $generics] = TypeParser::getGenericTypes($type);
 
         return !empty($generics);
     }
@@ -106,7 +106,7 @@ class ReflectionType extends OriginalReflectionType
 
     public static function isList(string $type): bool
     {
-        [$type] = TypeParser::typesOf($type);
+        [$type] = TypeParser::getGenericTypes($type);
 
         return ($type === 'list')
             || ($type === 'iterable')

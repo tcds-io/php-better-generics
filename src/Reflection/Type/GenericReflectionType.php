@@ -18,7 +18,7 @@ class GenericReflectionType extends ReflectionType
 
     public static function from(ReflectionClass $reflection, string $type): self
     {
-        [$type, $generics] = TypeParser::typesOf($type);
+        [$type, $generics] = TypeParser::getGenericTypes($type);
         $type = $reflection->templates[$type] ?? $type;
         $resolved = [];
 
