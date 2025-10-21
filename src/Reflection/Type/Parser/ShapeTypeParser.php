@@ -9,7 +9,7 @@ use InvalidArgumentException;
 class ShapeTypeParser
 {
     /**
-     * @return array<mixed>
+     * @return array{ 0: string, 1: array<string, string> }
      */
     public static function parse(string $type): array
     {

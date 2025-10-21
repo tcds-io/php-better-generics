@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Tcds\Io\Generic\Unit;
+namespace Test\Tcds\Io\Generic\Unit;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
-use Tcds\Io\Generic\Fixtures\Bar;
 use Tcds\Io\Generic\LazyBuffer;
+use Test\Tcds\Io\Generic\Fixtures\Bar;
 
 class LazyBufferTest extends TestCase
 {
@@ -22,7 +22,7 @@ class LazyBufferTest extends TestCase
     {
         $this->buffer = lazyBufferOf(
             Bar::class,
-            fn(array $values) => $this->loadEntriesByValue($values),
+            fn (array $values) => $this->loadEntriesByValue($values),
         );
     }
 
@@ -66,7 +66,7 @@ class LazyBufferTest extends TestCase
     {
         $buffer = lazyBufferOf(
             Bar::class,
-            fn(array $values) => $this->loadEntriesByValue($values),
+            fn (array $values) => $this->loadEntriesByValue($values),
             maxBufferSize: 3,
         );
 
@@ -87,8 +87,8 @@ class LazyBufferTest extends TestCase
         $this->loads[] = $values;
 
         return listOf(new Bar('first'), new Bar('second'))
-            ->filter(fn(Bar $bar) => in_array($bar->value, $values, true))
-            ->indexedBy(fn(Bar $bar) => $bar->value)
+            ->filter(fn (Bar $bar) => in_array($bar->value, $values, true))
+            ->indexedBy(fn (Bar $bar) => $bar->value)
             ->entries();
     }
 

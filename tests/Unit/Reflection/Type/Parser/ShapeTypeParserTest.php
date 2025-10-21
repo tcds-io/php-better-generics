@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Tcds\Io\Generic\Unit\Reflection\Type\Parser;
+namespace Test\Tcds\Io\Generic\Unit\Reflection\Type\Parser;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Tcds\Io\Generic\Fixtures\Address;
-use Tcds\Io\Generic\Fixtures\Company;
 use Tcds\Io\Generic\Reflection\Type\Parser\ShapeTypeParser;
+use Test\Tcds\Io\Generic\Fixtures\Address;
+use Test\Tcds\Io\Generic\Fixtures\Company;
 
 class ShapeTypeParserTest extends TestCase
 {

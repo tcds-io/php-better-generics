@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Tcds\Io\Generic\Unit\Reflection\Type;
+namespace Test\Tcds\Io\Generic\Unit\Reflection\Type;
 
 use BackedEnum;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Tcds\Io\Generic\Fixtures\Address;
-use Tcds\Io\Generic\Fixtures\AddressType;
-use Tcds\Io\Generic\Fixtures\Company;
-use Tcds\Io\Generic\Fixtures\Level;
-use Tcds\Io\Generic\Fixtures\Pair;
-use Tcds\Io\Generic\Fixtures\Status;
 use Tcds\Io\Generic\Reflection\Type\ReflectionType;
+use Test\Tcds\Io\Generic\Fixtures\Address;
+use Test\Tcds\Io\Generic\Fixtures\AddressType;
+use Test\Tcds\Io\Generic\Fixtures\Company;
+use Test\Tcds\Io\Generic\Fixtures\Level;
+use Test\Tcds\Io\Generic\Fixtures\Pair;
+use Test\Tcds\Io\Generic\Fixtures\Status;
 
 class ReflectionTypeTest extends TestCase
 {

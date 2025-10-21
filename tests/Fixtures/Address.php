@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tcds\Io\Generic\Fixtures;
+namespace Test\Tcds\Io\Generic\Fixtures;
 
 readonly class Address
 {

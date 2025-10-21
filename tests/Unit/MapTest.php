@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Tcds\Io\Generic\Unit;
+namespace Test\Tcds\Io\Generic\Unit;
 
 use LogicException;
 use PHPUnit\Framework\Attributes\Test;
-use Tcds\Io\Generic\BetterGenericTestCase;
-use Tcds\Io\Generic\Fixtures\Bar;
-use Tcds\Io\Generic\Fixtures\Foo;
 use Tcds\Io\Generic\Map;
+use Test\Tcds\Io\Generic\BetterGenericTestCase;
+use Test\Tcds\Io\Generic\Fixtures\Bar;
+use Test\Tcds\Io\Generic\Fixtures\Foo;
 
 class MapTest extends BetterGenericTestCase
 {
@@ -138,7 +138,7 @@ class MapTest extends BetterGenericTestCase
             "four" => new Foo("4", new Bar("4")),
         ]);
 
-        $entries = $map->mapValues(fn(Foo $value) => $value->bar);
+        $entries = $map->mapValues(fn (Foo $value) => $value->bar);
 
         $this->assertEquals(
             mapOf([
@@ -161,7 +161,7 @@ class MapTest extends BetterGenericTestCase
             "four" => new Bar("4"),
         ]);
 
-        $entries = $map->mapKeys(fn(string $key) => "$key.$key");
+        $entries = $map->mapKeys(fn (string $key) => "$key.$key");
 
         $this->assertEquals(
             mapOf([
@@ -207,7 +207,7 @@ class MapTest extends BetterGenericTestCase
             "four" => new Bar("4"),
         ]);
 
-        $exception = $this->expectThrows(LogicException::class, fn() => $map["ten"] = new Bar("10"));
+        $exception = $this->expectThrows(LogicException::class, fn () => $map["ten"] = new Bar("10"));
 
         $this->assertEquals(new LogicException("Cannot set values on a non-mutable map"), $exception);
     }
