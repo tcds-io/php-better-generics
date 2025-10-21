@@ -64,7 +64,7 @@ class ReflectionClass extends OriginalReflectionClass
     public function getProperties(?int $filter = null): array
     {
         return array_map(
-            fn(OriginalReflectionProperty $prop) => $this->getProperty($prop->name),
+            fn (OriginalReflectionProperty $prop) => $this->getProperty($prop->name),
             parent::getProperties(),
         );
     }
@@ -77,7 +77,7 @@ class ReflectionClass extends OriginalReflectionClass
 
         $source = file_get_contents($this->getFileName() ?: '') ?: '';
         $fqn = $this->getNamespaceName() . '\\' . $name;
-        $pattern = sprintf("/use\s(.*?)%s;/", $name);
+        $pattern = sprintf("~use\s(.*?)%s;~", preg_quote($name, '~'));
 
         if (preg_match($pattern, $source, $matches)) {
             $fqn = $matches[1] . $name;
