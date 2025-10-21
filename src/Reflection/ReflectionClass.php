@@ -8,8 +8,8 @@ use Override;
 use ReflectionClass as OriginalReflectionClass;
 use ReflectionProperty as OriginalReflectionProperty;
 use Tcds\Io\Generic\BetterGenericException;
+use Tcds\Io\Generic\Reflection\Type\Parser\TypeParser;
 use Tcds\Io\Generic\Reflection\Type\ReflectionType;
-use Tcds\Io\Generic\Reflection\Type\TypeParser;
 
 /**
  * @extends OriginalReflectionClass<object>

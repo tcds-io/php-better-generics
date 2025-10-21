@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tcds\Io\Generic\Reflection\Type;
 
 use Tcds\Io\Generic\Reflection\ReflectionClass;
+use Tcds\Io\Generic\Reflection\Type\Parser\TypeParser;
 
 class ShapeReflectionType extends ReflectionType
 {
@@ -44,7 +45,9 @@ class ShapeReflectionType extends ReflectionType
         $params = [];
 
         foreach ($namedParams as $name => $paramType) {
-            $paramType = $reflection->fqnOf($paramType);
+            $paramType = ReflectionType::isShape($paramType)
+                ? shape(...self::shapeFqn($reflection, $paramType))
+                : $reflection->fqnOf($paramType);
 
             $params[$name] = $paramType;
         }

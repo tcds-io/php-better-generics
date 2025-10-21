@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tcds\Io\Generic\Reflection\Type;
 
 use Tcds\Io\Generic\Reflection\ReflectionClass;
+use Tcds\Io\Generic\Reflection\Type\Parser\TypeParser;
 
 class GenericReflectionType extends ReflectionType
 {

@@ -68,14 +68,35 @@ class ReflectionClassPropertiesTest extends BetterGenericTestCase
     #[Test] public function get_with_shape_inputs(): void
     {
         $reflection = new ReflectionClass(RequestPayload::class);
-        $params = ['company' => Company::class, 'address' => Address::class, 'description' => 'string'];
 
         $properties = $reflection->getProperties();
 
         $this->assertParams(
             [
-                'data' => [ShapeReflectionType::class, shape('array', $params)],
-                'payload' => [ShapeReflectionType::class, shape('object', $params)],
+                'data' => [
+                    ShapeReflectionType::class,
+                    shape('array', [
+                        'company' => Company::class,
+                        'address' => Address::class,
+                        'description' => 'string',
+                        'previous' => shape('array', [
+                            'company' => Company::class,
+                            'address' => Address::class,
+                        ]),
+                    ]),
+                ],
+                'payload' => [
+                    ShapeReflectionType::class,
+                    shape('object', [
+                        'company' => Company::class,
+                        'address' => Address::class,
+                        'description' => 'string',
+                        'previous' => shape('object', [
+                            'company' => Company::class,
+                            'address' => Address::class,
+                        ]),
+                    ]),
+                ],
             ],
             $properties,
         );

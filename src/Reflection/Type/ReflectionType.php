@@ -12,6 +12,7 @@ use Tcds\Io\Generic\Reflection\ReflectionClass;
 use Tcds\Io\Generic\Reflection\ReflectionMethod;
 use Tcds\Io\Generic\Reflection\ReflectionParameter;
 use Tcds\Io\Generic\Reflection\ReflectionProperty;
+use Tcds\Io\Generic\Reflection\Type\Parser\TypeParser;
 use Traversable;
 
 class ReflectionType extends OriginalReflectionType

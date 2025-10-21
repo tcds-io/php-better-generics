@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tcds\Io\Generic\Reflection\Type;
+namespace Tcds\Io\Generic\Reflection\Type\Parser;
 
 class TypeParser
 {
@@ -24,18 +24,9 @@ class TypeParser
      */
     public static function getGenericTypes(string $type): array
     {
-        if (str_ends_with($type, '[]')) {
-            $type = sprintf('list<%s>', str_replace('[]', '', $type));
-        }
-
-        $pattern = '~^(.*?)<(.*?)>\s*$~';
-
-        if (!preg_match($pattern, $type, $matches)) {
-            return [$type, []];
-        }
-
-        $type = trim($matches[1]);
-        $generics = array_map('trim', explode(',', $matches[2]));
+        [$type, $generics] = str_contains($type, '<')
+            ? GenericTypeParser::parse($type)
+            : [$type, []];
 
         if ($type === 'array' && count($generics) === 1) {
             $type = 'list';
@@ -49,21 +40,7 @@ class TypeParser
      */
     public static function getParamMapFromShape(string $shape): array
     {
-        preg_match_all('/(\w+)\s*:\s*([^,\s}]+)/', $shape, $pairs, PREG_SET_ORDER);
-
-        $params = [];
-
-        foreach ($pairs as $pair) {
-            $name = $pair[1];
-            $params[$name] = $pair[2];
-        }
-
-        $type = match (true) {
-            str_starts_with($shape, 'object') => 'object',
-            default => 'array',
-        };
-
-        return [$type, $params];
+        return ShapeTypeParser::parse($shape);
     }
 
     private static function extractPatterFromDocblock(string $docblock, string $pattern, int $matchIndex = 1): ?string
@@ -72,7 +49,7 @@ class TypeParser
         $docblock = preg_replace('/\/\*\*|\*\/|\*/', '', $docblock) ?: '';
         $docblock = preg_replace('/\s*\n\s*/', ' ', $docblock) ?: '';
         $annotations = array_filter(explode('@', trim($docblock)));
-        $docblock = join(PHP_EOL, array_map(fn(string $line) => "@$line", $annotations));
+        $docblock = join(PHP_EOL, array_map(fn (string $line) => "@$line", $annotations));
         preg_match($pattern, $docblock, $matches);
 
         return $matches[$matchIndex] ?? null;
