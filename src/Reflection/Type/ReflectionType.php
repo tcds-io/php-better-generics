@@ -55,7 +55,7 @@ class ReflectionType extends OriginalReflectionType
             self::isPrimitive($type) => new PrimitiveReflectionType($reflection, $type),
             self::isShape($type) => ShapeReflectionType::from($reflection, $type),
             self::isGeneric($type) => GenericReflectionType::from($reflection, $type),
-            default => throw new BetterGenericException("Unknown type `$type`"),
+            default => new UnknownReflectionType($reflection, $type),
         };
     }
 
