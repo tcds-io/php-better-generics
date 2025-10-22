@@ -25,7 +25,7 @@ class ReflectionParameter extends OriginalReflectionParameter
     }
 
     #[ReturnTypeWillChange]
-    #[Override] public function getType(): ?ReflectionType
+    #[Override] public function getType(): ReflectionType
     {
         return ReflectionType::create($this);
     }

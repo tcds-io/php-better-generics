@@ -19,7 +19,7 @@ class ReflectionProperty extends OriginalReflectionProperty
     }
 
     #[ReturnTypeWillChange]
-    #[Override] public function getType(): ?ReflectionType
+    #[Override] public function getType(): ReflectionType
     {
         return ReflectionType::create($this);
     }
