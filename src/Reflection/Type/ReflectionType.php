@@ -26,7 +26,7 @@ class ReflectionType extends OriginalReflectionType
         return $this->type;
     }
 
-    public static function create(ReflectionProperty|ReflectionParameter|ReflectionMethod $context): self
+    public static function create(ReflectionProperty|ReflectionParameter|ReflectionMethod $context): ?self
     {
         $type = match ($context::class) {
             ReflectionProperty::class => self::getTypeForParamOrProperty(
@@ -48,8 +48,10 @@ class ReflectionType extends OriginalReflectionType
         $type = $reflection->templates[$type] ?? $type;
 
         return match (true) {
+            $type === null => null,
             class_exists($type) => new ClassReflectionType($reflection, $type),
             enum_exists($type) => new EnumReflectionType($reflection, $type),
+            interface_exists($type) => new self($reflection, $type),
             self::isPrimitive($type) => new PrimitiveReflectionType($reflection, $type),
             self::isShape($type) => ShapeReflectionType::from($reflection, $type),
             self::isGeneric($type) => GenericReflectionType::from($reflection, $type),
@@ -63,15 +65,15 @@ class ReflectionType extends OriginalReflectionType
     ): string {
         return TypeParser::getParamFromDocblock(
             docblock: $functionOrMethod->getDocComment() ?: '',
-            name: $paramOrProperty->name,
-        ) ?: $paramOrProperty->getOriginalType()->getName();
+            name: $paramOrProperty->name ?: '',
+        ) ?: $paramOrProperty->getOriginalType();
     }
 
     private static function getReturnTypeForMethod(ReflectionMethod $method): string
     {
         return TypeParser::getReturnFromDocblock(
             docblock: $method->getDocComment() ?: '',
-        ) ?: $method->getOriginalReturnType()->getName();
+        ) ?? $method->getOriginalReturnType();
     }
 
     public static function isPrimitive(string $type): bool
@@ -79,7 +81,7 @@ class ReflectionType extends OriginalReflectionType
         $simpleNodeTypes = ['int', 'integer', 'float', 'double', 'string', 'bool', 'boolean', 'mixed'];
         $types = explode('|', str_replace('&', '|', $type));
 
-        $notScalar = array_filter($types, fn($t) => !in_array($t, $simpleNodeTypes, true));
+        $notScalar = array_filter($types, fn ($t) => !in_array($t, $simpleNodeTypes, true));
 
         if (count($types) > 1 && !empty($notScalar)) {
             return false;

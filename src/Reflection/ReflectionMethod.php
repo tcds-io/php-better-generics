@@ -6,9 +6,9 @@ namespace Tcds\Io\Generic\Reflection;
 
 use Override;
 use ReflectionMethod as OriginalReflectionMethod;
-use ReflectionNamedType as OriginalReflectionNamedType;
 use ReflectionParameter as OriginalReflectionParameter;
 use ReturnTypeWillChange;
+use Tcds\Io\Generic\Reflection\Type\Parser\OriginalTypeParser;
 use Tcds\Io\Generic\Reflection\Type\ReflectionType;
 
 class ReflectionMethod extends OriginalReflectionMethod
@@ -25,24 +25,20 @@ class ReflectionMethod extends OriginalReflectionMethod
     public function getParameters(): array
     {
         return array_map(
-            fn(OriginalReflectionParameter $param) => new ReflectionParameter($this, $param->name),
+            fn (OriginalReflectionParameter $param) => new ReflectionParameter($this, $param->name),
             parent::getParameters(),
         );
     }
 
     #[Override]
     #[ReturnTypeWillChange]
-    public function getReturnType(): ReflectionType
+    public function getReturnType(): ?ReflectionType
     {
         return ReflectionType::create($this);
     }
 
-    public function getOriginalReturnType(): OriginalReflectionNamedType
+    public function getOriginalReturnType(): string
     {
-        $type = parent::getReturnType();
-
-        return $type instanceof OriginalReflectionNamedType
-            ? $type
-            : new OriginalReflectionNamedType();
+        return OriginalTypeParser::parse(parent::getReturnType());
     }
 }
