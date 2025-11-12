@@ -8,16 +8,17 @@ use BackedEnum;
 use ReflectionFunctionAbstract;
 use ReflectionType as OriginalReflectionType;
 use Tcds\Io\Generic\BetterGenericException;
-use Tcds\Io\Generic\Reflection\ReflectionClass;
+use Tcds\Io\Generic\Reflection\ReflectionFunction;
+use Tcds\Io\Generic\Reflection\ReflectionFunctionParameter;
 use Tcds\Io\Generic\Reflection\ReflectionMethod;
-use Tcds\Io\Generic\Reflection\ReflectionParameter;
+use Tcds\Io\Generic\Reflection\ReflectionMethodParameter;
 use Tcds\Io\Generic\Reflection\ReflectionProperty;
 use Tcds\Io\Generic\Reflection\Type\Parser\TypeParser;
 use Traversable;
 
 class ReflectionType extends OriginalReflectionType
 {
-    public function __construct(public ReflectionClass $reflection, public readonly string $type)
+    public function __construct(public readonly string $type)
     {
     }
 
@@ -26,41 +27,41 @@ class ReflectionType extends OriginalReflectionType
         return $this->type;
     }
 
-    public static function create(ReflectionProperty|ReflectionParameter|ReflectionMethod $context): self
-    {
-        $type = match ($context::class) {
+    public static function create(
+        ReflectionProperty|ReflectionMethodParameter|ReflectionFunctionParameter|ReflectionMethod|ReflectionFunction $reflection,
+    ): self {
+        $type = match ($reflection::class) {
             ReflectionProperty::class => self::getTypeForParamOrProperty(
-                functionOrMethod: $context->getConstructor(),
-                paramOrProperty: $context,
+                functionOrMethod: $reflection->getConstructor(),
+                paramOrProperty: $reflection,
             ),
-            ReflectionParameter::class => self::getTypeForParamOrProperty(
-                functionOrMethod: $context->getDeclaringFunction(),
-                paramOrProperty: $context,
+            ReflectionMethodParameter::class => self::getTypeForParamOrProperty(
+                functionOrMethod: $reflection->getDeclaringFunction(),
+                paramOrProperty: $reflection,
             ),
             ReflectionMethod::class => self::getReturnTypeForMethod(
-                method: $context,
+                method: $reflection,
             ),
-            default => throw new BetterGenericException(sprintf('Unknown context `%s`', $context::class)),
+            default => throw new BetterGenericException(sprintf('Unknown context `%s`', $reflection::class)),
         };
 
-        $reflection = $context->reflection;
-        $type = $reflection->aliases[$type] ?? $type;
-        $type = $reflection->templates[$type] ?? $type;
+        $context = $reflection->typeContext();
+        $type = $context->type($type);
 
         return match (true) {
-            class_exists($type) => new ClassReflectionType($reflection, $type),
-            enum_exists($type) => new EnumReflectionType($reflection, $type),
-            interface_exists($type) => new self($reflection, $type),
-            self::isPrimitive($type) => new PrimitiveReflectionType($reflection, $type),
-            self::isShape($type) => ShapeReflectionType::from($reflection, $type),
-            self::isGeneric($type) => GenericReflectionType::from($reflection, $type),
-            default => new DefaultReflectionType($reflection, $type),
+            class_exists($type) => new ClassReflectionType($type),
+            enum_exists($type) => new EnumReflectionType($type),
+            interface_exists($type) => new self($type),
+            self::isPrimitive($type) => new PrimitiveReflectionType($type),
+            self::isShape($type) => ShapeReflectionType::from($context, $type),
+            self::isGeneric($type) => GenericReflectionType::from($context, $type),
+            default => new DefaultReflectionType($type),
         };
     }
 
     private static function getTypeForParamOrProperty(
         ReflectionMethod|ReflectionFunctionAbstract $functionOrMethod,
-        ReflectionProperty|ReflectionParameter $paramOrProperty,
+        ReflectionProperty|ReflectionMethodParameter $paramOrProperty,
     ): string {
         return TypeParser::getParamFromDocblock(
             docblock: $functionOrMethod->getDocComment() ?: '',
@@ -80,7 +81,7 @@ class ReflectionType extends OriginalReflectionType
         $simpleNodeTypes = ['int', 'integer', 'float', 'double', 'string', 'bool', 'boolean', 'mixed'];
         $types = explode('|', str_replace('&', '|', $type));
 
-        $notScalar = array_filter($types, fn ($t) => !in_array($t, $simpleNodeTypes, true));
+        $notScalar = array_filter($types, fn($t) => !in_array($t, $simpleNodeTypes, true));
 
         if (count($types) > 1 && !empty($notScalar)) {
             return false;

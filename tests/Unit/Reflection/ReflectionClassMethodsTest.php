@@ -60,7 +60,7 @@ class ReflectionClassMethodsTest extends BetterGenericTestCase
 
         $type = $method->getReturnType();
 
-        $this->assertEquals(new GenericReflectionType($reflection, 'list', [Address::class]), $type);
+        $this->assertEquals(new GenericReflectionType('list', [Address::class]), $type);
     }
 
     #[Test] public function get_template_return_type(): void
@@ -70,8 +70,8 @@ class ReflectionClassMethodsTest extends BetterGenericTestCase
         $keyType = $reflection->getMethod('key')->getReturnType();
         $valueType = $reflection->getMethod('value')->getReturnType();
 
-        $this->assertEquals(new PrimitiveReflectionType($reflection, 'string'), $keyType);
-        $this->assertEquals(new ClassReflectionType($reflection, Address::class), $valueType);
+        $this->assertEquals(new PrimitiveReflectionType('string'), $keyType);
+        $this->assertEquals(new ClassReflectionType(Address::class), $valueType);
     }
 
     #[Test] public function get_method_annotated_return_type(): void
@@ -86,7 +86,7 @@ class ReflectionClassMethodsTest extends BetterGenericTestCase
         $getData = $reflection->getMethod('getData');
         $getPayload = $reflection->getMethod('getPayload');
 
-        $this->assertEquals(new ShapeReflectionType($reflection, 'array', $params), $getData->getReturnType());
-        $this->assertEquals(new ShapeReflectionType($reflection, 'object', $params), $getPayload->getReturnType());
+        $this->assertEquals(new ShapeReflectionType('array', $params), $getData->getReturnType());
+        $this->assertEquals(new ShapeReflectionType('object', $params), $getPayload->getReturnType());
     }
 }

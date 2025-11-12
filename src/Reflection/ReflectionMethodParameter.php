@@ -9,19 +9,13 @@ use ReflectionParameter as OriginalReflectionParameter;
 use ReturnTypeWillChange;
 use Tcds\Io\Generic\Reflection\Type\Parser\OriginalTypeParser;
 use Tcds\Io\Generic\Reflection\Type\ReflectionType;
+use Tcds\Io\Generic\Reflection\Type\TypeContext;
 
-class ReflectionParameter extends OriginalReflectionParameter
+class ReflectionMethodParameter extends OriginalReflectionParameter
 {
-    public readonly ReflectionClass $reflection;
-
     public function __construct(private readonly ReflectionMethod $method, string $param)
     {
-        $this->reflection = $this->method->reflection;
-
-        parent::__construct(
-            [$method->reflection->name, $method->name],
-            $param,
-        );
+        parent::__construct([$method->reflection->name, $method->name], $param);
     }
 
     #[ReturnTypeWillChange]
@@ -33,5 +27,10 @@ class ReflectionParameter extends OriginalReflectionParameter
     public function getOriginalType(): string
     {
         return OriginalTypeParser::parse(parent::getType());
+    }
+
+    public function typeContext(): TypeContext
+    {
+        return $this->method->typeContext();
     }
 }
