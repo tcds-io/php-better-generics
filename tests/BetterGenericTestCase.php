@@ -8,7 +8,7 @@ use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
 use Tcds\Io\Generic\ArrayList;
-use Tcds\Io\Generic\Reflection\ReflectionParameter;
+use Tcds\Io\Generic\Reflection\ReflectionMethodParameter;
 use Tcds\Io\Generic\Reflection\ReflectionProperty;
 use Throwable;
 
@@ -36,15 +36,15 @@ class BetterGenericTestCase extends TestCase
 
     /**
      * @param array<string, array{ 0: string, 1: string }> $expected
-     * @param list<ReflectionProperty|ReflectionParameter> $paramsOrProperties
+     * @param list<ReflectionProperty|ReflectionMethodParameter> $paramsOrProperties
      */
     protected function assertParams(array $expected, array $paramsOrProperties): void
     {
         $this->assertEquals(
             $expected,
             new ArrayList($paramsOrProperties)
-                ->indexedBy(fn (ReflectionProperty|ReflectionParameter $param) => $param->name)
-                ->mapValues(fn (ReflectionProperty|ReflectionParameter $prop) => [
+                ->indexedBy(fn (ReflectionProperty|ReflectionMethodParameter $param) => $param->name)
+                ->mapValues(fn (ReflectionProperty|ReflectionMethodParameter $prop) => [
                     get_class($prop->getType()),
                     $prop->getType()->getName(),
                 ])

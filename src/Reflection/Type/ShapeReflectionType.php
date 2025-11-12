@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tcds\Io\Generic\Reflection\Type;
 
-use Tcds\Io\Generic\Reflection\ReflectionClass;
 use Tcds\Io\Generic\Reflection\Type\Parser\TypeParser;
 
 class ShapeReflectionType extends ReflectionType
@@ -12,16 +11,16 @@ class ShapeReflectionType extends ReflectionType
     /**
      * @param array<string, string> $params
      */
-    public function __construct(ReflectionClass $reflection, string $type, public readonly array $params)
+    public function __construct(string $type, public readonly array $params)
     {
-        parent::__construct($reflection, $type);
+        parent::__construct($type);
     }
 
-    public static function from(ReflectionClass $reflection, string $type): self
+    public static function from(TypeContext $context, string $type): self
     {
-        [$type, $params] = self::shapeFqn($reflection, $type);
+        [$type, $params] = self::shapeFqn($context, $type);
 
-        return new self($reflection, $type, $params);
+        return new self($type, $params);
     }
 
     public function getName(): string
@@ -38,7 +37,7 @@ class ShapeReflectionType extends ReflectionType
     /**
      * @return array{ 0: string, 1: array<string, string> }
      */
-    private static function shapeFqn(ReflectionClass $reflection, string $shape): array
+    private static function shapeFqn(TypeContext $context, string $shape): array
     {
         [$type, $namedParams] = TypeParser::getParamMapFromShape($shape);
 
@@ -46,8 +45,8 @@ class ShapeReflectionType extends ReflectionType
 
         foreach ($namedParams as $name => $paramType) {
             $paramType = ReflectionType::isShape($paramType)
-                ? shape(...self::shapeFqn($reflection, $paramType))
-                : $reflection->fqnOf($paramType);
+                ? shape(...self::shapeFqn($context, $paramType))
+                : $context->fqnOf($paramType);
 
             $params[$name] = $paramType;
         }

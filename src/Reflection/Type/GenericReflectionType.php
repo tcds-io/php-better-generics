@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tcds\Io\Generic\Reflection\Type;
 
-use Tcds\Io\Generic\Reflection\ReflectionClass;
 use Tcds\Io\Generic\Reflection\Type\Parser\TypeParser;
 
 class GenericReflectionType extends ReflectionType
@@ -12,24 +11,23 @@ class GenericReflectionType extends ReflectionType
     /**
      * @param list<string> $generics
      */
-    public function __construct(ReflectionClass $reflection, string $type, public readonly array $generics)
+    public function __construct(string $type, public readonly array $generics)
     {
-        parent::__construct($reflection, $type);
+        parent::__construct($type);
     }
 
-    public static function from(ReflectionClass $reflection, string $type): self
+    public static function from(TypeContext $context, string $type): self
     {
         [$type, $generics] = TypeParser::getGenericTypes($type);
-        $type = $reflection->templates[$type] ?? $type;
+        $type = $context->templates[$type] ?? $type;
         $resolved = [];
 
         foreach ($generics as $generic) {
-            $genericType = $reflection->templates[$generic] ?? $generic;
-
-            $resolved[] = $reflection->fqnOf($genericType);
+            $genericType = $context->templates[$generic] ?? $generic;
+            $resolved[] = $context->fqnOf($genericType);
         }
 
-        return new self($reflection, $type, $resolved);
+        return new self($type, $resolved);
     }
 
     public function getName(): string

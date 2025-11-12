@@ -5,18 +5,17 @@ declare(strict_types=1);
 namespace Tcds\Io\Generic\Reflection;
 
 use Override;
-use ReflectionMethod as OriginalReflectionMethod;
-use ReflectionProperty as OriginalReflectionProperty;
+use ReflectionParameter as OriginalReflectionParameter;
 use ReturnTypeWillChange;
 use Tcds\Io\Generic\Reflection\Type\Parser\OriginalTypeParser;
 use Tcds\Io\Generic\Reflection\Type\ReflectionType;
 use Tcds\Io\Generic\Reflection\Type\TypeContext;
 
-class ReflectionProperty extends OriginalReflectionProperty
+class ReflectionFunctionParameter extends OriginalReflectionParameter
 {
-    public function __construct(public readonly ReflectionClass $reflection, string $property)
+    public function __construct(private readonly ReflectionFunction $function, string $param)
     {
-        parent::__construct($reflection->name, $property);
+        parent::__construct($function->getClosure(), $param);
     }
 
     #[ReturnTypeWillChange]
@@ -30,13 +29,8 @@ class ReflectionProperty extends OriginalReflectionProperty
         return OriginalTypeParser::parse(parent::getType());
     }
 
-    public function getConstructor(): OriginalReflectionMethod
-    {
-        return $this->reflection->getConstructor();
-    }
-
     public function typeContext(): TypeContext
     {
-        return $this->reflection->typeContext();
+        return $this->function->typeContext();
     }
 }
