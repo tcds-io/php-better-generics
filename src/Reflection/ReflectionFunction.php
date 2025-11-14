@@ -36,7 +36,10 @@ class ReflectionFunction extends OriginalReflectionFunction
     #[ReturnTypeWillChange]
     public function getReturnType(): ReflectionType
     {
-        return ReflectionType::create($this);
+        return ReflectionType::createReturnTypeForMethod(
+            method: $this,
+            context: $this->typeContext(),
+        );
     }
 
     public function getOriginalReturnType(): string
