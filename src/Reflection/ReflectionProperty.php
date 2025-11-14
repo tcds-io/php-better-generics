@@ -22,7 +22,11 @@ class ReflectionProperty extends OriginalReflectionProperty
     #[ReturnTypeWillChange]
     #[Override] public function getType(): ReflectionType
     {
-        return ReflectionType::create($this);
+        return ReflectionType::createTypeForParamOrProperty(
+            functionOrMethod: $this->getConstructor(),
+            paramOrProperty: $this,
+            context: $this->typeContext(),
+        );
     }
 
     public function getOriginalType(): string
