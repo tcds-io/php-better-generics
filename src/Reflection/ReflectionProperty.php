@@ -19,6 +19,11 @@ class ReflectionProperty extends OriginalReflectionProperty
         parent::__construct($reflection->name, $property);
     }
 
+    public static function fromOriginal(OriginalReflectionProperty $original): self
+    {
+        return new self(ReflectionClass::fromOriginal($original->getDeclaringClass()), $original->name);
+    }
+
     #[ReturnTypeWillChange]
     #[Override] public function getType(): ReflectionType
     {

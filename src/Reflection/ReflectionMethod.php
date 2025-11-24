@@ -26,7 +26,7 @@ class ReflectionMethod extends OriginalReflectionMethod
     public function getParameters(): array
     {
         return array_map(
-            fn(OriginalReflectionParameter $param) => new ReflectionMethodParameter($this, $param->name),
+            fn(OriginalReflectionParameter $param) => new ReflectionMethodParameter($this, $param),
             parent::getParameters(),
         );
     }
