@@ -7,6 +7,7 @@ namespace Tcds\Io\Generic\Reflection;
 use Override;
 use ReflectionClass as OriginalReflectionClass;
 use ReflectionProperty as OriginalReflectionProperty;
+use ReturnTypeWillChange;
 use Tcds\Io\Generic\BetterGenericException;
 use Tcds\Io\Generic\Reflection\Type\Parser\TypeParser;
 use Tcds\Io\Generic\Reflection\Type\TypeContext;
@@ -61,6 +62,19 @@ class ReflectionClass extends OriginalReflectionClass
     }
 
     #[Override]
+    #[ReturnTypeWillChange]
+    public function getParentClass(): ?self
+    {
+        $parent = parent::getParentClass();
+
+        if (!$parent) {
+            return null;
+        }
+
+        return new self($parent->name);
+    }
+
+    #[Override]
     public function getProperty(string $name): ReflectionProperty
     {
         return new ReflectionProperty($this, $name);
@@ -72,10 +86,15 @@ class ReflectionClass extends OriginalReflectionClass
     #[Override]
     public function getProperties(?int $filter = null): array
     {
-        return array_map(
+        $base = parent::getParentClass();
+        $baseProperties = $base ? $base->getProperties($filter) : [];
+
+        $thisProperties = array_map(
             fn(OriginalReflectionProperty $prop) => $this->getProperty($prop->name),
             parent::getProperties(),
         );
+
+        return array_merge($baseProperties, $thisProperties);
     }
 
     public function typeContext(): TypeContext
