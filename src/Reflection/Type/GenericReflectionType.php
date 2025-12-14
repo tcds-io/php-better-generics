@@ -20,14 +20,14 @@ class GenericReflectionType extends ReflectionType
     {
         [$type, $generics] = TypeParser::getGenericTypes($type);
         $type = $context->templates[$type] ?? $type;
-        $resolved = [];
 
-        foreach ($generics as $generic) {
-            $genericType = $context->templates[$generic] ?? $generic;
-            $resolved[] = $context->fqnOf($genericType);
-        }
-
-        return new self($type, $resolved);
+        return new self(
+            type: $context->fqnOf($context->templates[$type] ?? $type),
+            generics: array_map(
+                fn(string $generic) => $context->fqnOf($context->templates[$generic] ?? $generic),
+                $generics,
+            ),
+        );
     }
 
     public function getName(): string
