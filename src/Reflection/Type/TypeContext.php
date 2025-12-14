@@ -20,10 +20,6 @@ readonly class TypeContext
 
     public function fqnOf(string $type): string
     {
-        if (ReflectionType::isResolvedType($type)) {
-            return $type;
-        }
-
         $source = file_get_contents($this->filename ?: '') ?: '';
         $fqn = $this->namespace . '\\' . $type;
         $pattern = sprintf("~use\s(.*?)%s;~", preg_quote($type, '~'));
@@ -42,7 +38,8 @@ readonly class TypeContext
     public function type(string $type): string
     {
         $type = $this->aliases[$type] ?? $type;
+        $type = $this->templates[$type] ?? $type;
 
-        return $this->templates[$type] ?? $type;
+        return $this->fqnOf($type);
     }
 }

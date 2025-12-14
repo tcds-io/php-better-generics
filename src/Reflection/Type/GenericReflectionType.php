@@ -19,14 +19,10 @@ class GenericReflectionType extends ReflectionType
     public static function from(TypeContext $context, string $type): self
     {
         [$type, $generics] = TypeParser::getGenericTypes($type);
-        $type = $context->templates[$type] ?? $type;
 
         return new self(
-            type: $context->fqnOf($context->templates[$type] ?? $type),
-            generics: array_map(
-                fn(string $generic) => $context->fqnOf($context->templates[$generic] ?? $generic),
-                $generics,
-            ),
+            type: $context->type($type),
+            generics: array_map(fn(string $generic) => $context->type($generic), $generics),
         );
     }
 
