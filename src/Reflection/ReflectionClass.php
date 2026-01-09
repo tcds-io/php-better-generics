@@ -9,7 +9,7 @@ use ReflectionClass as OriginalReflectionClass;
 use ReflectionProperty as OriginalReflectionProperty;
 use Tcds\Io\Generic\BetterGenericException;
 use Tcds\Io\Generic\Reflection\Type\Parser\TypeParser;
-use Tcds\Io\Generic\Reflection\Type\ReflectionType;
+use Tcds\Io\Generic\Reflection\Type\TypeContext;
 
 /**
  * @extends OriginalReflectionClass<object>
@@ -64,30 +64,19 @@ class ReflectionClass extends OriginalReflectionClass
     public function getProperties(?int $filter = null): array
     {
         return array_map(
-            fn (OriginalReflectionProperty $prop) => $this->getProperty($prop->name),
+            fn(OriginalReflectionProperty $prop) => $this->getProperty($prop->name),
             parent::getProperties(),
         );
     }
 
-    public function fqnOf(string $name): string
+    public function typeContext(): TypeContext
     {
-        if (ReflectionType::isResolvedType($name)) {
-            return $name;
-        }
-
-        $source = file_get_contents($this->getFileName() ?: '') ?: '';
-        $fqn = $this->getNamespaceName() . '\\' . $name;
-        $pattern = sprintf("~use\s(.*?)%s;~", preg_quote($name, '~'));
-
-        if (preg_match($pattern, $source, $matches)) {
-            $fqn = $matches[1] . $name;
-        }
-
-        if (class_exists($fqn) || enum_exists($fqn)) {
-            return $fqn;
-        }
-
-        return $name;
+        return new TypeContext(
+            namespace: $this->getNamespaceName(),
+            filename: $this->getFileName() ?: '',
+            templates: $this->templates,
+            aliases: $this->aliases,
+        );
     }
 
     /**

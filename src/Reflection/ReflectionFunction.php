@@ -4,29 +4,30 @@ declare(strict_types=1);
 
 namespace Tcds\Io\Generic\Reflection;
 
+use Closure;
 use Override;
-use ReflectionMethod as OriginalReflectionMethod;
+use ReflectionFunction as OriginalReflectionFunction;
 use ReflectionParameter as OriginalReflectionParameter;
 use ReturnTypeWillChange;
 use Tcds\Io\Generic\Reflection\Type\Parser\OriginalTypeParser;
 use Tcds\Io\Generic\Reflection\Type\ReflectionType;
 use Tcds\Io\Generic\Reflection\Type\TypeContext;
 
-class ReflectionMethod extends OriginalReflectionMethod
+class ReflectionFunction extends OriginalReflectionFunction
 {
-    public function __construct(public readonly ReflectionClass $reflection, string $method)
+    public function __construct(Closure|string $function)
     {
-        parent::__construct($reflection->name, $method);
+        parent::__construct($function);
     }
 
     /**
-     * @return list<ReflectionMethodParameter>
+     * @return list<ReflectionFunctionParameter>
      */
     #[Override]
     public function getParameters(): array
     {
         return array_map(
-            fn(OriginalReflectionParameter $param) => new ReflectionMethodParameter($this, $param->name),
+            fn(OriginalReflectionParameter $param) => new ReflectionFunctionParameter($this, $param->name),
             parent::getParameters(),
         );
     }
@@ -45,6 +46,11 @@ class ReflectionMethod extends OriginalReflectionMethod
 
     public function typeContext(): TypeContext
     {
-        return $this->reflection->typeContext();
+        return new TypeContext(
+            namespace: $this->getNamespaceName(),
+            filename: $this->getFileName() ?: '',
+            templates: [],
+            aliases: [],
+        );
     }
 }
