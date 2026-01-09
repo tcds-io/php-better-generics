@@ -86,15 +86,10 @@ class ReflectionClass extends OriginalReflectionClass
     #[Override]
     public function getProperties(?int $filter = null): array
     {
-        $base = parent::getParentClass();
-        $baseProperties = $base ? $base->getProperties($filter) : [];
-
-        $thisProperties = array_map(
+        return array_map(
             fn(OriginalReflectionProperty $prop) => $this->getProperty($prop->name),
             parent::getProperties(),
         );
-
-        return array_merge($baseProperties, $thisProperties);
     }
 
     public function typeContext(): TypeContext
