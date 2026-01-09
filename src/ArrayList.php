@@ -298,7 +298,7 @@ class ArrayList implements IteratorAggregate, Countable
     }
 
     /**
-     * @template Key of int|string
+     * @template Key of string
      * @param callable(GenericItem $item): Key $callable
      * @return Map<Key, GenericItem>
      */
