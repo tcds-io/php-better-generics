@@ -7,7 +7,6 @@ namespace Tcds\Io\Generic\Reflection\Type;
 use BackedEnum;
 use ReflectionFunctionAbstract;
 use ReflectionType as OriginalReflectionType;
-use Tcds\Io\Generic\BetterGenericException;
 use Tcds\Io\Generic\Reflection\ReflectionFunction;
 use Tcds\Io\Generic\Reflection\ReflectionFunctionParameter;
 use Tcds\Io\Generic\Reflection\ReflectionMethod;
@@ -27,25 +26,33 @@ class ReflectionType extends OriginalReflectionType
         return $this->type;
     }
 
-    public static function create(
-        ReflectionProperty|ReflectionMethodParameter|ReflectionFunctionParameter|ReflectionMethod|ReflectionFunction $reflection,
+    public static function createTypeForParamOrProperty(
+        ReflectionMethod|ReflectionFunctionAbstract $functionOrMethod,
+        ReflectionProperty|ReflectionMethodParameter|ReflectionFunctionParameter $paramOrProperty,
+        TypeContext $context,
     ): self {
-        $type = match ($reflection::class) {
-            ReflectionProperty::class => self::getTypeForParamOrProperty(
-                functionOrMethod: $reflection->getConstructor(),
-                paramOrProperty: $reflection,
-            ),
-            ReflectionMethodParameter::class => self::getTypeForParamOrProperty(
-                functionOrMethod: $reflection->getDeclaringFunction(),
-                paramOrProperty: $reflection,
-            ),
-            ReflectionMethod::class => self::getReturnTypeForMethod(
-                method: $reflection,
-            ),
-            default => throw new BetterGenericException(sprintf('Unknown context `%s`', $reflection::class)),
-        };
+        return self::create(
+            type: TypeParser::getParamFromDocblock(
+                docblock: $functionOrMethod->getDocComment() ?: '',
+                name: $paramOrProperty->name ?: '',
+            ) ?: $paramOrProperty->getOriginalType(),
+            context: $context,
+        );
+    }
 
-        $context = $reflection->typeContext();
+    public static function createReturnTypeForMethod(
+        ReflectionMethod|ReflectionFunction $method,
+        TypeContext $context,
+    ): self {
+        $type = TypeParser::getReturnFromDocblock(
+            docblock: $method->getDocComment() ?: '',
+        ) ?? $method->getOriginalReturnType();
+
+        return self::create(type: $type, context: $context);
+    }
+
+    private static function create(string $type, TypeContext $context): self
+    {
         $type = $context->type($type);
 
         return match (true) {
@@ -57,23 +64,6 @@ class ReflectionType extends OriginalReflectionType
             self::isGeneric($type) => GenericReflectionType::from($context, $type),
             default => new DefaultReflectionType($type),
         };
-    }
-
-    private static function getTypeForParamOrProperty(
-        ReflectionMethod|ReflectionFunctionAbstract $functionOrMethod,
-        ReflectionProperty|ReflectionMethodParameter $paramOrProperty,
-    ): string {
-        return TypeParser::getParamFromDocblock(
-            docblock: $functionOrMethod->getDocComment() ?: '',
-            name: $paramOrProperty->name ?: '',
-        ) ?: $paramOrProperty->getOriginalType();
-    }
-
-    private static function getReturnTypeForMethod(ReflectionMethod $method): string
-    {
-        return TypeParser::getReturnFromDocblock(
-            docblock: $method->getDocComment() ?: '',
-        ) ?? $method->getOriginalReturnType();
     }
 
     public static function isPrimitive(string $type): bool

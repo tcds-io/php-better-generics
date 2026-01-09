@@ -53,7 +53,7 @@ class TypeParser
         $docblock = preg_replace('/\/\*\*|\*\/|\*/', '', $docblock) ?: '';
         $docblock = preg_replace('/\s*\n\s*/', ' ', $docblock) ?: '';
         $annotations = array_filter(explode('@', trim($docblock)));
-        $docblock = join(PHP_EOL, array_map(fn (string $line) => "@$line", $annotations));
+        $docblock = join(PHP_EOL, array_map(fn(string $line) => "@$line", $annotations));
         preg_match($pattern, $docblock, $matches);
 
         return $matches[$matchIndex] ?? null;

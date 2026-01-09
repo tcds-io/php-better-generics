@@ -21,7 +21,11 @@ class ReflectionFunctionParameter extends OriginalReflectionParameter
     #[ReturnTypeWillChange]
     #[Override] public function getType(): ReflectionType
     {
-        return ReflectionType::create($this);
+        return ReflectionType::createTypeForParamOrProperty(
+            functionOrMethod: $this->getDeclaringFunction(),
+            paramOrProperty: $this,
+            context: $this->typeContext(),
+        );
     }
 
     public function getOriginalType(): string
