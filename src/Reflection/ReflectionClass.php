@@ -39,6 +39,15 @@ class ReflectionClass extends OriginalReflectionClass
         $this->aliases = $this->aliases();
     }
 
+    /**
+     * @template T of object
+     * @param OriginalReflectionClass<T> $original
+     */
+    public static function fromOriginal(OriginalReflectionClass $original): self
+    {
+        return new self($original->name);
+    }
+
     #[Override]
     public function getMethod(string $name): ReflectionMethod
     {
