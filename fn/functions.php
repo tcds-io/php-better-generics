@@ -7,7 +7,6 @@ use Tcds\Io\Generic\LazyBuffer;
 use Tcds\Io\Generic\Map;
 use Tcds\Io\Generic\MutableArrayList;
 use Tcds\Io\Generic\MutableMap;
-use Tcds\Io\Serializer\Metadata\Parser\Type;
 
 /**
  * @template T of object
@@ -30,7 +29,7 @@ function lazyOf(string $class, callable $initializer): object
  * @template Key of string|int
  * @template Value of object
  * @param class-string<Value> $class
- * @param Closure(list<Key> $keys): array<Key, Value> $loader
+ * @param (Closure(list<Key> $keys): array<Key, Value>) $loader
  * @return LazyBuffer<Key, Value>
  */
 function lazyBufferOf(string $class, Closure $loader, int $maxBufferSize = 10): LazyBuffer
@@ -98,7 +97,7 @@ function mutableMapOf(array $entries): MutableMap
 /**
  * @template Params
  * @template T
- * @param callable(Params ...$params): T $callable
+ * @param (callable(Params ...$params): T) $callable
  * @return T
  */
 function run(callable $callable)
