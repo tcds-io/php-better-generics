@@ -26,7 +26,7 @@ class ReflectionType extends OriginalReflectionType
         return $this->type;
     }
 
-    public static function create(ReflectionProperty|ReflectionParameter|ReflectionMethod $context): ?self
+    public static function create(ReflectionProperty|ReflectionParameter|ReflectionMethod $context): self
     {
         $type = match ($context::class) {
             ReflectionProperty::class => self::getTypeForParamOrProperty(
@@ -48,14 +48,13 @@ class ReflectionType extends OriginalReflectionType
         $type = $reflection->templates[$type] ?? $type;
 
         return match (true) {
-            $type === null => null,
             class_exists($type) => new ClassReflectionType($reflection, $type),
             enum_exists($type) => new EnumReflectionType($reflection, $type),
             interface_exists($type) => new self($reflection, $type),
             self::isPrimitive($type) => new PrimitiveReflectionType($reflection, $type),
             self::isShape($type) => ShapeReflectionType::from($reflection, $type),
             self::isGeneric($type) => GenericReflectionType::from($reflection, $type),
-            default => new UnknownReflectionType($reflection, $type),
+            default => new DefaultReflectionType($reflection, $type),
         };
     }
 

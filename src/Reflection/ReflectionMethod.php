@@ -32,7 +32,7 @@ class ReflectionMethod extends OriginalReflectionMethod
 
     #[Override]
     #[ReturnTypeWillChange]
-    public function getReturnType(): ?ReflectionType
+    public function getReturnType(): ReflectionType
     {
         return ReflectionType::create($this);
     }

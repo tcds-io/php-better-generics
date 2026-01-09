@@ -7,7 +7,6 @@ namespace Test\Tcds\Io\Generic;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 use Tcds\Io\Generic\ArrayList;
 use Tcds\Io\Generic\Reflection\ReflectionParameter;
 use Tcds\Io\Generic\Reflection\ReflectionProperty;
@@ -46,7 +45,7 @@ class BetterGenericTestCase extends TestCase
             new ArrayList($paramsOrProperties)
                 ->indexedBy(fn (ReflectionProperty|ReflectionParameter $param) => $param->name)
                 ->mapValues(fn (ReflectionProperty|ReflectionParameter $prop) => [
-                    get_class($prop->getType() ?? throw new RuntimeException('Prop does not have a type')),
+                    get_class($prop->getType()),
                     $prop->getType()->getName(),
                 ])
                 ->entries(),
