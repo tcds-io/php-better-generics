@@ -28,6 +28,14 @@ class ReflectionFunctionParameter extends OriginalReflectionParameter
         );
     }
 
+    #[Override]
+    public function getDefaultValue(): mixed
+    {
+        return $this->isDefaultValueAvailable()
+            ? parent::getDefaultValue()
+            : null;
+    }
+
     public function getOriginalType(): string
     {
         return OriginalTypeParser::parse(parent::getType());
