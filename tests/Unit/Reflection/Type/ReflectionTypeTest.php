@@ -31,6 +31,8 @@ class ReflectionTypeTest extends TestCase
         $this->assertTrue(ReflectionType::isPrimitive('float|bool'));
         $this->assertTrue(ReflectionType::isPrimitive('bool|mixed'));
         $this->assertTrue(ReflectionType::isPrimitive('int|string|float|bool|mixed'));
+        $this->assertTrue(ReflectionType::isPrimitive('numeric-string|non-empty-string|non-falsy-string'));
+        $this->assertTrue(ReflectionType::isPrimitive('truthy-string|literal-string|lowercase-string'));
 
         $this->assertFalse(ReflectionType::isPrimitive(Address::class));
         $this->assertFalse(ReflectionType::isPrimitive(Company::class));

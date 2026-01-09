@@ -17,6 +17,31 @@ use Traversable;
 
 class ReflectionType extends OriginalReflectionType
 {
+    private const array PRIMITIVE_TYPES = [
+        'int',
+        'integer',
+        'float',
+        'double',
+        'number',
+        'string',
+        'bool',
+        'boolean',
+        'true',
+        'false',
+        'null',
+        'mixed',
+        'scalar',
+    ];
+
+    private const array ADVANCED_PRIMITIVE_TYPES = [
+        'numeric-string',
+        'non-empty-string',
+        'non-falsy-string',
+        'truthy-string',
+        'literal-string',
+        'lowercase-string',
+    ];
+
     public function __construct(public readonly string $type)
     {
     }
@@ -69,16 +94,19 @@ class ReflectionType extends OriginalReflectionType
 
     public static function isPrimitive(string $type): bool
     {
-        $simpleNodeTypes = ['int', 'integer', 'float', 'double', 'string', 'bool', 'boolean', 'mixed'];
-        $types = explode('|', str_replace('&', '|', $type));
+        return self::isOneOf($type, self::PRIMITIVE_TYPES)
+            || self::isOneOf($type, self::ADVANCED_PRIMITIVE_TYPES);
+    }
 
-        $notScalar = array_filter($types, fn($t) => !in_array($t, $simpleNodeTypes, true));
+    /**
+     * @param list<string> $types
+     */
+    private static function isOneOf(string $type, array $types): bool
+    {
+        $unionTypes = explode('|', str_replace('&', '|', $type));
+        $otherTypes = array_filter($unionTypes, fn($t) => !in_array($t, $types, true));
 
-        if (count($types) > 1 && !empty($notScalar)) {
-            return false;
-        }
-
-        return empty($notScalar);
+        return count($types) <= 1 || empty($otherTypes);
     }
 
     public static function isShape(?string $type): bool
