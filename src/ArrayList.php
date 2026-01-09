@@ -15,13 +15,21 @@ use Traversable;
  * @template GenericItem
  * @implements IteratorAggregate<int, GenericItem>
  */
-readonly class ArrayList implements IteratorAggregate, Countable
+class ArrayList implements IteratorAggregate, Countable
 {
     /**
      * @param Entries $items
      */
-    public function __construct(public array $items)
+    public function __construct(public protected(set) array $items)
     {
+    }
+
+    /**
+     * @return list<GenericItem>
+     */
+    public function items(): array
+    {
+        return $this->items;
     }
 
     /**

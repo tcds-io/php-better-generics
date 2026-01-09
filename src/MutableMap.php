@@ -21,14 +21,6 @@ class MutableMap extends Map
     }
 
     /**
-     * @return Entries
-     */
-    public function entries(): array
-    {
-        return $this->entries;
-    }
-
-    /**
      * @param GenericKey $key
      * @param GenericValue $value
      * @noinspection PhpMissingParamTypeInspection

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Tcds\Io\Generic\ArrayList;
 use Tcds\Io\Generic\LazyBuffer;
 use Tcds\Io\Generic\Map;
+use Tcds\Io\Generic\MutableArrayList;
 use Tcds\Io\Generic\MutableMap;
 
 /**
@@ -57,6 +58,16 @@ function listOf(...$items): ArrayList
     $typed = $items;
 
     return new ArrayList($typed);
+}
+
+/**
+ * @template T
+ * @param T ...$items
+ * @return MutableArrayList<T>
+ */
+function mutableListOf(...$items): MutableArrayList
+{
+    return new MutableArrayList(listOf(...$items)->items());
 }
 
 /**
