@@ -49,6 +49,10 @@ function initializeLazyObject(object $lazy): void
  */
 function listOf(...$items): ArrayList
 {
+    if (count($items) === 1 && is_iterable($items[0])) {
+        $items = [...$items[0]];
+    }
+
     /** @var list<T> $typed */
     $typed = $items;
 
