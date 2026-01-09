@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tcds\Io\Generic\Reflection\Type;
 
+use BackedEnum;
 use ReflectionFunctionAbstract;
 use ReflectionType as OriginalReflectionType;
 use Tcds\Io\Generic\BetterGenericException;
@@ -12,6 +13,7 @@ use Tcds\Io\Generic\Reflection\ReflectionClass;
 use Tcds\Io\Generic\Reflection\ReflectionMethod;
 use Tcds\Io\Generic\Reflection\ReflectionParameter;
 use Tcds\Io\Generic\Reflection\ReflectionProperty;
+use Traversable;
 
 class ReflectionType extends OriginalReflectionType
 {
@@ -72,7 +74,7 @@ class ReflectionType extends OriginalReflectionType
         ) ?: $method->getOriginalReturnType()->getName();
     }
 
-    private static function isPrimitive(string $type): bool
+    public static function isPrimitive(string $type): bool
     {
         $simpleNodeTypes = ['int', 'float', 'string', 'bool', 'boolean', 'mixed'];
         $types = explode('|', str_replace('&', '|', $type));
@@ -98,10 +100,40 @@ class ReflectionType extends OriginalReflectionType
         return !empty($generics);
     }
 
+    public static function isArray(string $type): bool
+    {
+        return str_starts_with($type, 'array') || str_starts_with($type, 'map');
+    }
+
+    public static function isList(string $type): bool
+    {
+        [$type] = Annotation::typesOf($type);
+
+        return ($type === 'list')
+            || ($type === 'iterable')
+            || ($type === Traversable::class);
+    }
+
+    /**
+     * @return ($type is class-string ? true : false)
+     */
+    public static function isClass(string $type): bool
+    {
+        return class_exists($type);
+    }
+
+    /**
+     * @return ($type is class-string<BackedEnum> ? true : false)
+     */
+    public static function isEnum(string $type): bool
+    {
+        return enum_exists($type);
+    }
+
     public static function isResolvedType(string $type): bool
     {
-        return class_exists($type) ||
-            enum_exists($type) ||
+        return self::isClass($type) ||
+            self::isEnum($type) ||
             self::isPrimitive($type);
     }
 }
