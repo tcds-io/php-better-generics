@@ -75,7 +75,7 @@ class ReflectionType extends OriginalReflectionType
 
     public static function isPrimitive(string $type): bool
     {
-        $simpleNodeTypes = ['int', 'float', 'string', 'bool', 'boolean', 'mixed'];
+        $simpleNodeTypes = ['int', 'integer', 'float', 'double', 'string', 'bool', 'boolean', 'mixed'];
         $types = explode('|', str_replace('&', '|', $type));
 
         $notScalar = array_filter($types, fn($t) => !in_array($t, $simpleNodeTypes, true));

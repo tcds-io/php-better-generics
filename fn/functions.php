@@ -7,6 +7,7 @@ use Tcds\Io\Generic\LazyBuffer;
 use Tcds\Io\Generic\Map;
 use Tcds\Io\Generic\MutableArrayList;
 use Tcds\Io\Generic\MutableMap;
+use Tcds\Io\Serializer\Metadata\Parser\Type;
 
 /**
  * @template T of object
@@ -121,7 +122,7 @@ function shape(string $type, array $params): string
     $values = [];
 
     foreach ($params as $name => $param) {
-        $values[] = "$name: $param";
+        $values[] = sprintf('%s: %s', $name, $param);
     }
 
     return sprintf('%s{ %s }', $type, join(', ', $values));
