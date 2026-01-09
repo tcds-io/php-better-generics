@@ -27,9 +27,17 @@ class ReflectionFunction extends OriginalReflectionFunction
     public function getParameters(): array
     {
         return array_map(
-            fn(OriginalReflectionParameter $param) => new ReflectionFunctionParameter($this, $param->name),
+            fn (OriginalReflectionParameter $param) => new ReflectionFunctionParameter($this, $param->name),
             parent::getParameters(),
         );
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getParameterNames(): array
+    {
+        return array_map(fn (OriginalReflectionParameter $param) => $param->name, parent::getParameters());
     }
 
     #[Override]
@@ -40,6 +48,20 @@ class ReflectionFunction extends OriginalReflectionFunction
             method: $this,
             context: $this->typeContext(),
         );
+    }
+
+    /**
+     * @template T
+     * @param (Closure(...$n): T) $closure
+     * @return T
+     */
+    public static function call(Closure $closure, mixed $args): mixed
+    {
+        $reflection = new self($closure);
+        $names = $reflection->getParameterNames();
+        $params = array_intersect_key($args, array_flip($names));
+
+        return $reflection->invoke(...$params);
     }
 
     public function getOriginalReturnType(): string
