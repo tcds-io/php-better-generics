@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Tcds\Io\Generic\ArrayList;
+use Tcds\Io\Generic\LazyBuffer;
 use Tcds\Io\Generic\Map;
 use Tcds\Io\Generic\MutableMap;
 
@@ -21,6 +22,18 @@ function lazyOf(string $class, callable $initializer): object
 
     /** @var T */
     return $reflector->newLazyProxy($initializer);
+}
+
+/**
+ * @template Key of string|int
+ * @template Value of object
+ * @param class-string<Value> $class
+ * @param Closure(list<Key> $keys): array<Key, Value> $bufferLoader
+ * @return LazyBuffer<Key, Value>
+ */
+function lazyBufferOf(string $class, Closure $bufferLoader): LazyBuffer
+{
+    return new LazyBuffer($class, $bufferLoader);
 }
 
 function initializeLazyObject(object $lazy): void
