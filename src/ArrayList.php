@@ -20,7 +20,7 @@ class ArrayList implements IteratorAggregate, Countable
     /**
      * @param Entries $items
      */
-    public function __construct(public protected(set) array $items)
+    public function __construct(protected array $items)
     {
     }
 
