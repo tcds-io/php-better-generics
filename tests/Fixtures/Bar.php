@@ -6,12 +6,12 @@ namespace Tcds\Io\Generic\Fixtures;
 
 readonly class Bar
 {
-    public function __construct(public string $name)
+    public function __construct(public string $value)
     {
     }
 
     public function getDuplicateName(): string
     {
-        return "$this->name-$this->name";
+        return "$this->value-$this->value";
     }
 }
