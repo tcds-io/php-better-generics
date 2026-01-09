@@ -71,7 +71,7 @@ function mutableListOf(...$items): MutableArrayList
 }
 
 /**
- * @template Key of int|string
+ * @template Key of string
  * @template Value
  * @param array<Key, Value> $entries
  * @return Map<Key, Value>
@@ -83,7 +83,7 @@ function mapOf(array $entries): Map
 }
 
 /**
- * @template Key of int|string
+ * @template Key of string
  * @template Value
  * @param array<Key, Value> $entries
  * @return MutableMap<Key, Value>
