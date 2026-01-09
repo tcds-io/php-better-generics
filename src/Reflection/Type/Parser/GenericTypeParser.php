@@ -13,6 +13,10 @@ class GenericTypeParser
      */
     public static function parse(string $type): array
     {
+        if (str_contains($type, '|')) {
+            return self::parseUnionTypes($type);
+        }
+
         $type = trim($type);
         $ltPos = strpos($type, '<');
 
@@ -61,5 +65,31 @@ class GenericTypeParser
         }
 
         return [$outer, $args];
+    }
+
+    /**
+     * @return array{ 0: string, 1: list<string> }
+     */
+    private static function parseUnionTypes(string $type): array
+    {
+        $types = explode('|', $type);
+        $unionTypes = array_map(TypeParser::getGenericTypes(...), $types);
+
+        $mains = [];
+        $allGenerics = [];
+
+        foreach ($unionTypes as [$main, $generics]) {
+            $mains[$main] = $main;
+
+            // $allGenerics = array_merge($allGenerics, $generics);
+            foreach ($generics as $index => $generic) {
+                $allGenerics[$index][$generic] = $generic;
+            }
+        }
+
+        return [
+            join('|', $mains),
+            array_map(fn($generics) => join('|', $generics), $allGenerics),
+        ];
     }
 }
