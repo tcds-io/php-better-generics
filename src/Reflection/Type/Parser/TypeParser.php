@@ -24,6 +24,10 @@ class TypeParser
      */
     public static function getGenericTypes(string $type): array
     {
+        if (str_ends_with($type, '[]')) {
+            $type = sprintf('list<%s>', str_replace('[]', '', $type));
+        }
+
         [$type, $generics] = str_contains($type, '<')
             ? GenericTypeParser::parse($type)
             : [$type, []];
