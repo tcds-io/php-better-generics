@@ -108,9 +108,10 @@ class ArrayList implements IteratorAggregate
 
         /** @var list<GenericInner> $item */
         foreach ($this->items as $item) {
-            foreach ($item as $inner) {
-                $mapped[] = $callback($inner);
-            }
+            $mapped = array_merge(
+                $mapped,
+                array_map($callback, $item),
+            );
         }
 
         return new self($mapped);
@@ -185,9 +186,7 @@ class ArrayList implements IteratorAggregate
         $condition ??= fn($item) => true;
 
         foreach ($this->items as $item) {
-            $passed = $condition($item);
-
-            if ($passed) {
+            if ($condition($item)) {
                 return $item;
             }
         }
@@ -312,8 +311,12 @@ class ArrayList implements IteratorAggregate
     }
 
     /**
+     * Joins all elements of the list to a string
+     *
      * @noinspection PhpUndefinedClassInspection
-     * @param (callable(GenericItem $item): Primitive)|null $callable
+     * @param (callable(GenericItem $item): Primitive)|null $callable <p>
+     *   When `$callable` is defined, the joined value will be the value returned from the callable
+     * </p>
      */
     public function join(string $separator = "", ?callable $callable = null): string
     {
@@ -322,6 +325,53 @@ class ArrayList implements IteratorAggregate
             : $this;
 
         return join($separator, $list->items);
+    }
+
+    /**
+     * Sorts a list
+     *
+     * @param (callable(GenericItem $a, GenericItem $b): int)|null $callable <p>
+     *  If `$callable` is defined, the callable is used as sorting function with `usort` - https://php.net/manual/en/function.usort.php,
+     *  if `$callable` is not defined then the list is sorted by its values with `sort` - https://php.net/manual/en/function.sort.php,
+     * </p>
+     * @return self<GenericItem>
+     */
+    public function sort(?callable $callable = null): self
+    {
+        $sorted = $this->items;
+
+        $callable !== null
+            ? usort($sorted, $callable)
+            : sort($sorted);
+
+        return new self($sorted);
+    }
+
+    /**
+     * Extract a slice of the array
+     *
+     * @param int $offset <p>
+     * If offset is non-negative, the sequence will
+     * start at that offset in the array. If
+     * offset is negative, the sequence will
+     * start that far from the end of the array.
+     * </p>
+     * @param int|null $length [optional] <p>
+     * If length is given and is positive, then
+     * the sequence will have that many elements in it. If
+     * length is given and is negative then the
+     * sequence will stop that many elements from the end of the
+     * array. If it is omitted, then the sequence will have everything
+     * from offset up until the end of the
+     * array.
+     * </p>
+     * @return self<GenericItem>
+     */
+    public function slice(int $offset, ?int $length = null): self
+    {
+        return new self(
+            array_slice($this->items, $offset, $length),
+        );
     }
 
     /**
