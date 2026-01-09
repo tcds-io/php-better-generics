@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Tcds\Io\Generic\Unit\ArrayList;
+namespace Test\Tcds\Io\Generic\Unit\ArrayList;
 
 use OutOfRangeException;
 use PHPUnit\Framework\Attributes\Test;
-use Tcds\Io\Generic\BetterGenericTestCase;
+use Test\Tcds\Io\Generic\BetterGenericTestCase;
 
 class ArrayListIndexOfTest extends BetterGenericTestCase
 {

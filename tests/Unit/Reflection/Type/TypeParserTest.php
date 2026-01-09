@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Tcds\Io\Generic\Unit\Reflection\Type;
+namespace Test\Tcds\Io\Generic\Unit\Reflection\Type;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Tcds\Io\Generic\Fixtures\Address;
 use Tcds\Io\Generic\Reflection\Type\Parser\TypeParser;
+use Test\Tcds\Io\Generic\Fixtures\Address;
 
 class TypeParserTest extends TestCase
 {

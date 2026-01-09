@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Tcds\Io\Generic\Unit\ArrayList;
+namespace Test\Tcds\Io\Generic\Unit\ArrayList;
 
 use OutOfRangeException;
 use PHPUnit\Framework\Attributes\Test;
-use Tcds\Io\Generic\BetterGenericTestCase;
+use Test\Tcds\Io\Generic\BetterGenericTestCase;
 
 class ArrayListGetTest extends BetterGenericTestCase
 {
@@ -23,7 +23,7 @@ class ArrayListGetTest extends BetterGenericTestCase
     {
         $list = listOf("1", "2", "3");
 
-        $exception = $this->expectThrows(OutOfRangeException::class, fn() => $list->get(10));
+        $exception = $this->expectThrows(OutOfRangeException::class, fn () => $list->get(10));
 
         $this->assertEquals("Index 10 does not exist", $exception->getMessage());
     }

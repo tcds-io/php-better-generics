@@ -32,7 +32,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Tcds\\Io\\Generic\\": "tests/"
+      "Test\\Tcds\\Io\\Generic\\": "tests/"
     }
   },
   "authors": [

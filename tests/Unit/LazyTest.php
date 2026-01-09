@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Tcds\Io\Generic\Unit;
+namespace Test\Tcds\Io\Generic\Unit;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Tcds\Io\Generic\Fixtures\Bar;
-use Tcds\Io\Generic\Fixtures\Foo;
+use Test\Tcds\Io\Generic\Fixtures\Bar;
+use Test\Tcds\Io\Generic\Fixtures\Foo;
 
 class LazyTest extends TestCase
 {
@@ -51,7 +51,7 @@ class LazyTest extends TestCase
     {
         $this->assertEquals(
             <<<STRING
-            Tcds\Io\Generic\Fixtures\Bar Object
+            Test\Tcds\Io\Generic\Fixtures\Bar Object
             (
             )
             STRING,
@@ -63,9 +63,9 @@ class LazyTest extends TestCase
     {
         $this->assertEquals(
             <<<STRING
-            Tcds\Io\Generic\Fixtures\Bar Object
+            Test\Tcds\Io\Generic\Fixtures\Bar Object
             (
-                [instance] => Tcds\Io\Generic\Fixtures\Bar Object
+                [instance] => Test\Tcds\Io\Generic\Fixtures\Bar Object
                     (
                         [value] => bar
                     )

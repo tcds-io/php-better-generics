@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Tcds\Io\Generic\Unit\Reflection;
+namespace Test\Tcds\Io\Generic\Unit\Reflection;
 
 use PHPUnit\Framework\Attributes\Test;
-use Tcds\Io\Generic\BetterGenericTestCase;
-use Tcds\Io\Generic\Fixtures\Address;
-use Tcds\Io\Generic\Fixtures\Company;
-use Tcds\Io\Generic\Fixtures\Pair;
-use Tcds\Io\Generic\Fixtures\RequestPayload;
 use Tcds\Io\Generic\Reflection\ReflectionClass;
 use Tcds\Io\Generic\Reflection\Type\ClassReflectionType;
 use Tcds\Io\Generic\Reflection\Type\GenericReflectionType;
 use Tcds\Io\Generic\Reflection\Type\PrimitiveReflectionType;
 use Tcds\Io\Generic\Reflection\Type\ShapeReflectionType;
+use Test\Tcds\Io\Generic\BetterGenericTestCase;
+use Test\Tcds\Io\Generic\Fixtures\Address;
+use Test\Tcds\Io\Generic\Fixtures\Company;
+use Test\Tcds\Io\Generic\Fixtures\Pair;
+use Test\Tcds\Io\Generic\Fixtures\RequestPayload;
 
 class ReflectionClassMethodsTest extends BetterGenericTestCase
 {
