@@ -24,7 +24,7 @@ class ArrayListMapTest extends TestCase
         $this->assertEquals(new ArrayList(["1", "2", "3"]), $mapped);
     }
 
-    #[Test] public function given_an_array_list_when_flat_map_is_called_then_apply_callback_to_each_item_and_return_new_array_list(): void
+    #[Test] public function given_multiple_array_list_when_flat_map_is_called_then_apply_callback_to_each_item_and_return_new_array_list(): void
     {
         $list = new ArrayList([
             [new Bar("1"), new Bar("2")],
@@ -34,5 +34,21 @@ class ArrayListMapTest extends TestCase
         $mapped = $list->flatMap(fn(Bar $item) => $item->value);
 
         $this->assertEquals(new ArrayList(["1", "2", "3"]), $mapped);
+    }
+
+    #[Test] public function given_multiple_array_list_then_flatten_into_a_single_list(): void
+    {
+        $list = new ArrayList([
+            [new Bar("1"), new Bar("2")],
+            [new Bar("3")],
+        ]);
+
+        $flatten = $list->flatten();
+
+        $this->assertEquals(new ArrayList([
+            new Bar("1"),
+            new Bar("2"),
+            new Bar("3"),
+        ]), $flatten);
     }
 }
