@@ -29,12 +29,12 @@ function lazyOf(string $class, callable $initializer): object
  * @template Key of string|int
  * @template Value of object
  * @param class-string<Value> $class
- * @param Closure(list<Key> $keys): array<Key, Value> $bufferLoader
+ * @param Closure(list<Key> $keys): array<Key, Value> $loader
  * @return LazyBuffer<Key, Value>
  */
-function lazyBufferOf(string $class, Closure $bufferLoader): LazyBuffer
+function lazyBufferOf(string $class, Closure $loader, int $maxBufferSize = 10): LazyBuffer
 {
-    return new LazyBuffer($class, $bufferLoader);
+    return new LazyBuffer($class, $loader, $maxBufferSize);
 }
 
 function initializeLazyObject(object $lazy): void
