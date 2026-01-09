@@ -6,30 +6,28 @@ namespace Tcds\Io\Generic\Unit\ArrayList;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Tcds\Io\Generic\ArrayList;
 use Tcds\Io\Generic\Fixtures\Bar;
 
-class ArrayListMergeTest extends TestCase
+class ArrayListOf extends TestCase
 {
-    #[Test] public function given_an_array_list_when_foreach_is_called_then_apply_callback_to_each_array_item(): void
+    #[Test] public function given_multiple_items_then_create_array_list_from_function(): void
     {
-        $first = listOf(
+        $list = listOf(
             new Bar("1"),
             new Bar("2"),
-        );
-
-        $merged = $first->merge(
-            listOf(new Bar("3")),
-            listOf(new Bar("4")),
+            new Bar("3"),
+            new Bar("4"),
         );
 
         $this->assertEquals(
-            listOf(
+            new ArrayList([
                 new Bar("1"),
                 new Bar("2"),
                 new Bar("3"),
                 new Bar("4"),
-            ),
-            $merged,
+            ]),
+            $list,
         );
     }
 }

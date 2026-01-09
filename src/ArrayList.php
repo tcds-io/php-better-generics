@@ -4,21 +4,23 @@ declare(strict_types=1);
 
 namespace Tcds\Io\Generic;
 
+use Countable;
 use IteratorAggregate;
 use OutOfRangeException;
 use Traversable;
 
 /**
  * @phpstan-type Primitive string|int|float|bool
+ * @phpstan-type Entries list<GenericItem>
  * @template GenericItem
  * @implements IteratorAggregate<int, GenericItem>
  */
-class ArrayList implements IteratorAggregate
+readonly class ArrayList implements IteratorAggregate, Countable
 {
     /**
-     * @param list<GenericItem> $items
+     * @param Entries $items
      */
-    public function __construct(private array $items)
+    public function __construct(public array $items)
     {
     }
 
@@ -118,7 +120,6 @@ class ArrayList implements IteratorAggregate
     }
 
     /**
-     * @noinspection PhpUndefinedClassInspection
      * @return self<value-of<GenericItem>>
      */
     public function flatten(): self
@@ -185,13 +186,7 @@ class ArrayList implements IteratorAggregate
     {
         $condition ??= fn($item) => true;
 
-        foreach ($this->items as $item) {
-            if ($condition($item)) {
-                return $item;
-            }
-        }
-
-        return null;
+        return array_find($this->items, $condition);
     }
 
     /**
@@ -204,6 +199,12 @@ class ArrayList implements IteratorAggregate
      */
     public function last(?callable $condition = null)
     {
+        if ($condition === null) {
+            $key = array_key_last($this->items);
+
+            return $this->items[$key] ?? null;
+        }
+
         return $this->reverse()->first($condition);
     }
 
@@ -264,7 +265,7 @@ class ArrayList implements IteratorAggregate
      */
     public function merge(self ...$others): self
     {
-        /** @var list<GenericItem> $merged */
+        /** @var Entries $merged */
         $merged = array_merge($this->items, ...$this->plain($others));
 
         return new self($merged);
@@ -313,7 +314,6 @@ class ArrayList implements IteratorAggregate
     /**
      * Joins all elements of the list to a string
      *
-     * @noinspection PhpUndefinedClassInspection
      * @param (callable(GenericItem $item): Primitive)|null $callable <p>
      *   When `$callable` is defined, the joined value will be the value returned from the callable
      * </p>
