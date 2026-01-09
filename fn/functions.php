@@ -106,7 +106,9 @@ function run(callable $callable)
 }
 
 /**
+ * @template T
  * @param list<string> $generics
+ * @return class-string<T>
  */
 function generic(string $type, array $generics): string
 {
