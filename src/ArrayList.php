@@ -290,6 +290,24 @@ readonly class ArrayList implements IteratorAggregate, Countable
     }
 
     /**
+     * @template Key of int|string
+     * @param callable(GenericItem $item): Key $callable
+     * @return Map<Key, GenericItem>
+     */
+    public function indexedBy(callable $callable): Map
+    {
+        /** @var array<Key, GenericItem> $indexed */
+        $indexed = [];
+
+        foreach ($this->items as $item) {
+            $index = $callable($item);
+            $indexed[$index] = $item;
+        }
+
+        return mapOf($indexed);
+    }
+
+    /**
      * @param self<GenericItem> ...$others
      * @return self<GenericItem>
      */

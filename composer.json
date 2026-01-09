@@ -8,7 +8,8 @@
   "require-dev": {
     "phpunit/phpunit": "^10.5",
     "phpstan/phpstan": "^2.1",
-    "slevomat/coding-standard": "^8.15"
+    "slevomat/coding-standard": "^8.15",
+    "symfony/var-dumper": "^7.2"
   },
   "scripts": {
     "cs:check": "vendor/bin/phpcs --colors -ps",
