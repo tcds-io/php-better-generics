@@ -37,6 +37,13 @@ readonly class TypeContext
 
     public function type(string $type): string
     {
+        if (str_contains($type, '|')) {
+            $types = explode('|', $type);
+            $resolved = array_map($this->type(...), $types);
+
+            return join('|', $resolved);
+        }
+
         $type = $this->aliases[$type] ?? $type;
         $type = $this->templates[$type] ?? $type;
 
