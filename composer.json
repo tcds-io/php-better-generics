@@ -27,7 +27,7 @@
       "Tcds\\Io\\Generic\\": "src/"
     },
     "files": [
-      "src/functional/functions.php"
+      "fn/functions.php"
     ]
   },
   "autoload-dev": {

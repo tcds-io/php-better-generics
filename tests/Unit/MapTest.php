@@ -207,7 +207,7 @@ class MapTest extends BetterGenericTestCase
             "four" => new Bar("4"),
         ]);
 
-        $exception = $this->expectThrows(fn() => $map["ten"] = new Bar("10"));
+        $exception = $this->expectThrows(LogicException::class, fn() => $map["ten"] = new Bar("10"));
 
         $this->assertEquals(new LogicException("Cannot set values on a non-mutable map"), $exception);
     }
@@ -222,7 +222,7 @@ class MapTest extends BetterGenericTestCase
             "four" => new Bar("4"),
         ]);
 
-        $exception = $this->expectThrows(function () use ($map): void {
+        $exception = $this->expectThrows(LogicException::class, function () use ($map): void {
             unset($map["ten"]);
         });
 
