@@ -6,23 +6,23 @@ namespace Tcds\Io\Generic\Reflection\Type;
 
 class TypeParser
 {
-    public static function param(string $docblock, string $name): ?string
+    public static function getParamFromDocblock(string $docblock, string $name): ?string
     {
-        return self::extract(
+        return self::extractPatterFromDocblock(
             docblock: $docblock,
             pattern: sprintf('/@param\s+([^\n]+?)\s+\$%s/s', $name),
         );
     }
 
-    public static function return(string $docblock): ?string
+    public static function getReturnFromDocblock(string $docblock): ?string
     {
-        return self::extract(docblock: $docblock, pattern: '/@return\s+([\s\S]*)/');
+        return self::extractPatterFromDocblock(docblock: $docblock, pattern: '/@return\s+([\s\S]*)/');
     }
 
     /**
      * @return array{ 0: string, 1: list<string> }
      */
-    public static function typesOf(string $type): array
+    public static function getGenericTypes(string $type): array
     {
         if (str_ends_with($type, '[]')) {
             $type = sprintf('list<%s>', str_replace('[]', '', $type));
@@ -47,7 +47,7 @@ class TypeParser
     /**
      * @return array{ 0: string, 1: array<string, string> }
      */
-    public static function shapeParamMap(string $shape): array
+    public static function getParamMapFromShape(string $shape): array
     {
         preg_match_all('/(\w+)\s*:\s*([^,\s}]+)/', $shape, $pairs, PREG_SET_ORDER);
 
@@ -66,7 +66,7 @@ class TypeParser
         return [$type, $params];
     }
 
-    private static function extract(string $docblock, string $pattern, int $matchIndex = 1): ?string
+    private static function extractPatterFromDocblock(string $docblock, string $pattern, int $matchIndex = 1): ?string
     {
         $docblock = trim($docblock ?: '');
         $docblock = preg_replace('/\/\*\*|\*\/|\*/', '', $docblock) ?: '';

@@ -39,7 +39,7 @@ class ShapeReflectionType extends ReflectionType
      */
     private static function shapeFqn(ReflectionClass $reflection, string $shape): array
     {
-        [$type, $namedParams] = TypeParser::shapeParamMap($shape);
+        [$type, $namedParams] = TypeParser::getParamMapFromShape($shape);
 
         $params = [];
 

@@ -30,7 +30,7 @@ class ReflectionClass extends OriginalReflectionClass
         /**
          * @var class-string $class
          */
-        [$class, $generics] = TypeParser::typesOf($type);
+        [$class, $generics] = TypeParser::getGenericTypes($type);
 
         parent::__construct($class);
 
