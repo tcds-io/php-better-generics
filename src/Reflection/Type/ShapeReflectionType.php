@@ -39,7 +39,7 @@ class ShapeReflectionType extends ReflectionType
      */
     private static function shapeFqn(ReflectionClass $reflection, string $shape): array
     {
-        [$type, $namedParams] = self::shapeToTypes($shape);
+        [$type, $namedParams] = TypeParser::shapeParamMap($shape);
 
         $params = [];
 
@@ -48,28 +48,6 @@ class ShapeReflectionType extends ReflectionType
 
             $params[$name] = $paramType;
         }
-
-        return [$type, $params];
-    }
-
-    /**
-     * @return array{ 0: string, 1: array<string, string> }
-     */
-    private static function shapeToTypes(string $shape): array
-    {
-        preg_match_all('/(\w+)\s*:\s*([^,\s}]+)/', $shape, $pairs, PREG_SET_ORDER);
-
-        $params = [];
-
-        foreach ($pairs as $pair) {
-            $name = $pair[1];
-            $params[$name] = $pair[2];
-        }
-
-        $type = match (true) {
-            str_starts_with($shape, 'object') => 'object',
-            default => 'array',
-        };
 
         return [$type, $params];
     }

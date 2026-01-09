@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tcds\Io\Generic\Reflection\Type;
 
-use Tcds\Io\Generic\Reflection\Annotation;
 use Tcds\Io\Generic\Reflection\ReflectionClass;
 
 class GenericReflectionType extends ReflectionType
@@ -19,7 +18,7 @@ class GenericReflectionType extends ReflectionType
 
     public static function from(ReflectionClass $reflection, string $type): self
     {
-        [$type, $generics] = Annotation::typesOf($type);
+        [$type, $generics] = TypeParser::typesOf($type);
         $type = $reflection->templates[$type] ?? $type;
         $resolved = [];
 
