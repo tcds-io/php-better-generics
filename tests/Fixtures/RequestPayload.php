@@ -11,11 +11,13 @@ class RequestPayload
      *     company: Company,
      *     address: Address,
      *     description: string,
+     *     previous: array{ company: Company, address: Address },
      * } $data
      * @param object{
      *     company: Company,
      *     address: Address,
      *     description: string,
+     *     previous: object{ company: Company, address: Address },
      * } $payload
      */
     public function __construct(public array $data, public object $payload)
