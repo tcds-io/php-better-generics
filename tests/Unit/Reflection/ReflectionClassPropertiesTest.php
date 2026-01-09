@@ -7,12 +7,14 @@ namespace Test\Tcds\Io\Generic\Unit\Reflection;
 use PHPUnit\Framework\Attributes\Test;
 use Tcds\Io\Generic\ArrayList;
 use Tcds\Io\Generic\Reflection\ReflectionClass;
+use Tcds\Io\Generic\Reflection\Type\ClassReflectionType;
 use Tcds\Io\Generic\Reflection\Type\GenericReflectionType;
 use Tcds\Io\Generic\Reflection\Type\PrimitiveReflectionType;
 use Tcds\Io\Generic\Reflection\Type\ShapeReflectionType;
 use Test\Tcds\Io\Generic\BetterGenericTestCase;
 use Test\Tcds\Io\Generic\Fixtures\Address;
 use Test\Tcds\Io\Generic\Fixtures\Company;
+use Test\Tcds\Io\Generic\Fixtures\Order;
 use Test\Tcds\Io\Generic\Fixtures\Pair;
 use Test\Tcds\Io\Generic\Fixtures\RequestPayload;
 
@@ -118,4 +120,20 @@ class ReflectionClassPropertiesTest extends BetterGenericTestCase
             $properties,
         );
     }
+
+    #[Test] public function get_types_from_class_with_unnecessary_annotations(): void
+    {
+        $reflection = new ReflectionClass(Order::class);
+
+        $properties = $reflection->getProperties();
+
+        $this->assertParams(
+            [
+                'userId' => [PrimitiveReflectionType::class, 'string'],
+                'delivery' => [ClassReflectionType::class, Address::class],
+            ],
+            $properties,
+        );
+    }
+
 }

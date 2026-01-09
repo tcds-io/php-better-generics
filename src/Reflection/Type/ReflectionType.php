@@ -57,6 +57,7 @@ class ReflectionType extends OriginalReflectionType
 
         return match (true) {
             class_exists($type) => new ClassReflectionType($type),
+            class_exists("$context->namespace\\$type") => new ClassReflectionType("$context->namespace\\$type"),
             enum_exists($type) => new EnumReflectionType($type),
             interface_exists($type) => new self($type),
             self::isPrimitive($type) => new PrimitiveReflectionType($type),
