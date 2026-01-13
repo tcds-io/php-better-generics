@@ -53,15 +53,16 @@ class ReflectionFunction extends OriginalReflectionFunction
     /**
      * @template T
      * @param (Closure(...$n): T) $closure
+     * @param array<string, mixed> $params
      * @return T
      */
-    public static function call(Closure $closure, mixed $args): mixed
+    public static function call(Closure $closure, array $params)
     {
         $reflection = new self($closure);
         $names = $reflection->getParameterNames();
-        $params = array_intersect_key($args, array_flip($names));
+        $needed = array_intersect_key($params, array_flip($names));
 
-        return $reflection->invoke(...$params);
+        return $reflection->invoke(...$needed);
     }
 
     public function getOriginalReturnType(): string
