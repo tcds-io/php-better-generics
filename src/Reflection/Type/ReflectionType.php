@@ -78,7 +78,7 @@ class ReflectionType extends OriginalReflectionType
 
     private static function create(string $type, TypeContext $context): self
     {
-        $type = $context->type($type);
+        $type = ltrim($context->type($type), '\\');
 
         return match (true) {
             class_exists($type) => new ClassReflectionType($type),
