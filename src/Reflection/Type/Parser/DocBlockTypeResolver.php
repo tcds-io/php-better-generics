@@ -20,6 +20,7 @@ use PHPStan\PhpDocParser\Parser\PhpDocParser;
 use PHPStan\PhpDocParser\Parser\TokenIterator;
 use PHPStan\PhpDocParser\Parser\TypeParser as PhpDocTypeParser;
 use PHPStan\PhpDocParser\ParserConfig;
+use Tcds\Io\Generic\Reflection\Type\TypeContext;
 
 /**
  * Facade over phpstan/phpdoc-parser. Hides the AST machinery from the rest
@@ -196,6 +197,108 @@ final class DocBlockTypeResolver
         }
 
         return $templates;
+    }
+
+    /**
+     * Returns parents declared via `extends`/`implements` PHPDoc tags with
+     * their generic arguments fully FQN-resolved (and recursively walked
+     * through nested generics) against the given context. Used by
+     * ReflectionClass to inherit template bindings from a parent.
+     *
+     * @return array<class-string, list<string>>
+     */
+    public function inheritedGenerics(string $docblock, TypeContext $context): array
+    {
+        if (trim($docblock) === '') {
+            return [];
+        }
+
+        $doc = $this->parseDoc($docblock);
+        $clauses = [];
+
+        foreach ($doc->getExtendsTagValues() as $tag) {
+            $entry = $this->resolveClause($tag->type, $context);
+
+            if ($entry === null) {
+                continue;
+            }
+
+            [$parentFqn, $args] = $entry;
+            $clauses[$parentFqn] = $args;
+        }
+
+        foreach ($doc->getImplementsTagValues() as $tag) {
+            $entry = $this->resolveClause($tag->type, $context);
+
+            if ($entry === null) {
+                continue;
+            }
+
+            [$parentFqn, $args] = $entry;
+            $clauses[$parentFqn] = $args;
+        }
+
+        return $clauses;
+    }
+
+    /**
+     * @return array{class-string, list<string>}|null
+     */
+    private function resolveClause(GenericTypeNode $clause, TypeContext $context): ?array
+    {
+        /** @var class-string $parentFqn */
+        $parentFqn = $context->fqnOf($clause->type->name);
+
+        if (!class_exists($parentFqn) && !interface_exists($parentFqn)) {
+            return null;
+        }
+
+        return [$parentFqn, array_values(array_map(
+            fn (TypeNode $a) => $this->resolveTypeNode($a, $context),
+            $clause->genericTypes,
+        ))];
+    }
+
+    /**
+     * Walks a TypeNode replacing every identifier with its FQN-resolved form
+     * (using `TypeContext::fqnOf`), preserving structure. Used to translate
+     * `@extends Foo<User, list<Order>>` written in a child's namespace into
+     * a string the parent's ReflectionClass can ingest unambiguously.
+     */
+    private function resolveTypeNode(TypeNode $node, TypeContext $context): string
+    {
+        if ($node instanceof IdentifierTypeNode) {
+            // Args may reference one of the child's own templates (e.g.
+            // `@template U` + `@extends Collection<U>`). Substitute first,
+            // then fall back to import-based FQN resolution.
+            return $context->templates[$node->name] ?? $context->fqnOf($node->name);
+        }
+
+        if ($node instanceof GenericTypeNode) {
+            $head = $context->templates[$node->type->name] ?? $context->fqnOf($node->type->name);
+            $args = array_map(fn (TypeNode $a) => $this->resolveTypeNode($a, $context), $node->genericTypes);
+
+            return $head . '<' . implode(', ', $args) . '>';
+        }
+
+        if ($node instanceof NullableTypeNode) {
+            return '?' . $this->resolveTypeNode($node->type, $context);
+        }
+
+        if ($node instanceof ArrayTypeNode) {
+            return $this->resolveTypeNode($node->type, $context) . '[]';
+        }
+
+        if ($node instanceof UnionTypeNode) {
+            return implode('|', array_map(fn (TypeNode $a) => $this->resolveTypeNode($a, $context), $node->types));
+        }
+
+        if ($node instanceof IntersectionTypeNode) {
+            return implode('&', array_map(fn (TypeNode $a) => $this->resolveTypeNode($a, $context), $node->types));
+        }
+
+        // Shapes and exotic nodes — fall back to the compact renderer.
+        return self::renderType($node);
     }
 
     /**
