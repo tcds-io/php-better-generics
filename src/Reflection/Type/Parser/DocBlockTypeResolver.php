@@ -1,0 +1,278 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tcds\Io\Generic\Reflection\Type\Parser;
+
+use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocNode;
+use PHPStan\PhpDocParser\Ast\Type\ArrayShapeNode;
+use PHPStan\PhpDocParser\Ast\Type\ArrayTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\GenericTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\IdentifierTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\IntersectionTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\NullableTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\TypeNode;
+use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
+use PHPStan\PhpDocParser\Lexer\Lexer;
+use PHPStan\PhpDocParser\Parser\ConstExprParser;
+use PHPStan\PhpDocParser\Parser\PhpDocParser;
+use PHPStan\PhpDocParser\Parser\TokenIterator;
+use PHPStan\PhpDocParser\Parser\TypeParser as PhpDocTypeParser;
+use PHPStan\PhpDocParser\ParserConfig;
+
+/**
+ * Facade over phpstan/phpdoc-parser. Hides the AST machinery from the rest
+ * of the reflection layer and exposes string-shaped methods compatible with
+ * the legacy TypeParser/ShapeTypeParser/GenericTypeParser API. Later commits
+ * will introduce node-aware methods that return ReflectionType directly.
+ *
+ * Single shared instance per process. Both PhpDocNode and TypeNode parses
+ * are memoised by input hash to avoid re-tokenising frequently re-used
+ * docblocks/types (every reflection of the same class hits the same docblock).
+ */
+final class DocBlockTypeResolver
+{
+    private static ?self $instance = null;
+
+    private readonly Lexer $lexer;
+    private readonly PhpDocParser $phpDocParser;
+    private readonly PhpDocTypeParser $typeParser;
+
+    /** @var array<string, PhpDocNode> */
+    private array $docCache = [];
+
+    /** @var array<string, TypeNode> */
+    private array $typeCache = [];
+
+    public function __construct()
+    {
+        $config = new ParserConfig(usedAttributes: []);
+        $constExprParser = new ConstExprParser($config);
+        $this->typeParser = new PhpDocTypeParser($config, $constExprParser);
+        $this->phpDocParser = new PhpDocParser($config, $this->typeParser, $constExprParser);
+        $this->lexer = new Lexer($config);
+    }
+
+    public static function instance(): self
+    {
+        return self::$instance ??= new self();
+    }
+
+    /**
+     * Returns the rendered type string for the @param annotation matching $paramName,
+     * or null if the docblock does not document that parameter.
+     */
+    public function paramTypeStringFromDocblock(string $docblock, string $paramName): ?string
+    {
+        if (trim($docblock) === '') {
+            return null;
+        }
+
+        $needle = '$' . $paramName;
+
+        foreach ($this->parseDoc($docblock)->getParamTagValues() as $param) {
+            if ($param->parameterName === $needle) {
+                return self::renderType($param->type);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the rendered type string for the @return annotation, or null if absent.
+     */
+    public function returnTypeStringFromDocblock(string $docblock): ?string
+    {
+        if (trim($docblock) === '') {
+            return null;
+        }
+
+        $tags = $this->parseDoc($docblock)->getReturnTagValues();
+
+        return $tags === [] ? null : self::renderType($tags[0]->type);
+    }
+
+    /**
+     * Splits a generic type string into its main type and its generic arguments,
+     * preserving the legacy normalisations:
+     *   - `Foo[]` => ['list', ['Foo']]
+     *   - `array<X>` => ['list', ['X']]
+     *   - `Foo<A, B>` => ['Foo', ['A', 'B']]
+     *   - `Foo` (non-generic) => ['Foo', []]
+     *   - `Foo|Bar` (no <...>) => ['Foo|Bar', []]
+     *
+     * @return array{string, list<string>}
+     */
+    public function genericTypeParts(string $type): array
+    {
+        $type = trim($type);
+
+        if ($type === '') {
+            return ['', []];
+        }
+
+        $node = $this->parseType($type);
+
+        if ($node instanceof ArrayTypeNode) {
+            return ['list', [self::renderType($node->type)]];
+        }
+
+        if ($node instanceof GenericTypeNode) {
+            $main = $node->type->name;
+            $generics = array_values(array_map(self::renderType(...), $node->genericTypes));
+
+            if ($main === 'array' && count($generics) === 1) {
+                $main = 'list';
+            }
+
+            return [$main, $generics];
+        }
+
+        // Non-generic identifiers, unions, intersections, callables — leave whole.
+        return [self::renderType($node), []];
+    }
+
+    /**
+     * Returns the array shape kind (`array`, `list`, …) and an ordered map of
+     * member name => member type string. For unkeyed items the index is used as
+     * the key, mirroring the legacy ShapeTypeParser output.
+     *
+     * @return array{string, array<string, string>}
+     */
+    public function shapeMemberStrings(string $shape): array
+    {
+        $node = $this->parseType($shape);
+
+        if (!$node instanceof ArrayShapeNode) {
+            return [self::renderType($node), []];
+        }
+
+        $members = [];
+        $autoIndex = 0;
+
+        foreach ($node->items as $item) {
+            if ($item->keyName !== null) {
+                $key = (string) $item->keyName;
+            } else {
+                $key = (string) $autoIndex;
+                $autoIndex += 1;
+            }
+
+            $members[$key] = self::renderType($item->valueType);
+        }
+
+        return [$node->kind, $members];
+    }
+
+    /**
+     * Returns @template declarations as a map of name => bound (rendered as a
+     * string, or null when unbounded). Bounds are kept as strings — resolution
+     * to FQNs happens at the caller via TypeContext.
+     *
+     * @return array<string, ?string>
+     */
+    public function templates(string $docblock): array
+    {
+        if (trim($docblock) === '') {
+            return [];
+        }
+
+        $templates = [];
+
+        foreach ($this->parseDoc($docblock)->getTemplateTagValues() as $template) {
+            $templates[$template->name] = $template->bound !== null ? self::renderType($template->bound) : null;
+        }
+
+        return $templates;
+    }
+
+    /**
+     * Returns @phpstan-type aliases as name => raw type string.
+     *
+     * @return array<string, string>
+     */
+    public function typeAliases(string $docblock): array
+    {
+        if (trim($docblock) === '') {
+            return [];
+        }
+
+        $aliases = [];
+
+        foreach ($this->parseDoc($docblock)->getTypeAliasTagValues() as $alias) {
+            $aliases[$alias->alias] = self::renderType($alias->type);
+        }
+
+        return $aliases;
+    }
+
+    private function parseDoc(string $docblock): PhpDocNode
+    {
+        $hash = md5($docblock);
+
+        if (isset($this->docCache[$hash])) {
+            return $this->docCache[$hash];
+        }
+
+        $tokens = new TokenIterator($this->lexer->tokenize($docblock));
+
+        return $this->docCache[$hash] = $this->phpDocParser->parse($tokens);
+    }
+
+    private function parseType(string $type): TypeNode
+    {
+        $hash = md5($type);
+
+        if (isset($this->typeCache[$hash])) {
+            return $this->typeCache[$hash];
+        }
+
+        $tokens = new TokenIterator($this->lexer->tokenize($type));
+        $node = $this->typeParser->parse($tokens);
+
+        return $this->typeCache[$hash] = $node;
+    }
+
+    public static function clearInstance(): void
+    {
+        self::$instance = null;
+    }
+
+    /**
+     * Compact renderer that mirrors the hand-written legacy format
+     * (`int|string`, `Foo<A, B>`, `Foo[]`, `array{name: string}`) instead of
+     * phpdoc-parser's spaced-and-parenthesised default (`(int | string)`).
+     * Falls back to (string) cast for nodes we don't model explicitly.
+     */
+    public static function renderType(TypeNode $node): string
+    {
+        if ($node instanceof IdentifierTypeNode) {
+            return $node->name;
+        }
+
+        if ($node instanceof UnionTypeNode) {
+            return implode('|', array_map(self::renderType(...), $node->types));
+        }
+
+        if ($node instanceof IntersectionTypeNode) {
+            return implode('&', array_map(self::renderType(...), $node->types));
+        }
+
+        if ($node instanceof NullableTypeNode) {
+            return '?' . self::renderType($node->type);
+        }
+
+        if ($node instanceof ArrayTypeNode) {
+            return self::renderType($node->type) . '[]';
+        }
+
+        if ($node instanceof GenericTypeNode) {
+            $args = implode(', ', array_map(self::renderType(...), $node->genericTypes));
+
+            return $node->type->name . '<' . $args . '>';
+        }
+
+        return (string) $node;
+    }
+}
