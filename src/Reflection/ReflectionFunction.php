@@ -52,7 +52,7 @@ class ReflectionFunction extends OriginalReflectionFunction
 
     /**
      * @template T
-     * @param (Closure(...$n): T) $closure
+     * @param Closure(mixed...): T $closure
      * @param array<string, mixed> $params
      * @return T
      */
@@ -62,6 +62,7 @@ class ReflectionFunction extends OriginalReflectionFunction
         $names = $reflection->getParameterNames();
         $needed = array_intersect_key($params, array_flip($names));
 
+        /** @var T */
         return $reflection->invoke(...$needed);
     }
 

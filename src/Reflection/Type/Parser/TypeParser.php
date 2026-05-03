@@ -8,7 +8,7 @@ class TypeParser
 {
     public static function getParamFromDocblock(string $docblock, string $name): ?string
     {
-        return self::extractPatterFromDocblock(
+        return self::extractPatternFromDocblock(
             docblock: $docblock,
             pattern: sprintf('/@param\s+([^\n]+?)\s+\$%s/s', $name),
         );
@@ -16,7 +16,7 @@ class TypeParser
 
     public static function getReturnFromDocblock(string $docblock): ?string
     {
-        return self::extractPatterFromDocblock(docblock: $docblock, pattern: '/@return\s+([\s\S]*)/');
+        return self::extractPatternFromDocblock(docblock: $docblock, pattern: '/@return\s+([\s\S]*)/');
     }
 
     /**
@@ -47,7 +47,7 @@ class TypeParser
         return ShapeTypeParser::parse($shape);
     }
 
-    private static function extractPatterFromDocblock(string $docblock, string $pattern, int $matchIndex = 1): ?string
+    private static function extractPatternFromDocblock(string $docblock, string $pattern, int $matchIndex = 1): ?string
     {
         $docblock = trim($docblock ?: '');
         $docblock = preg_replace('/\/\*\*|\*\/|\*/', '', $docblock) ?: '';

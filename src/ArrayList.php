@@ -103,25 +103,21 @@ class ArrayList implements IteratorAggregate, Countable
     }
 
     /**
-     * Applies the callback to the elements of each ArrayList within the ArrayList
+     * Applies the callback to each inner element when items are iterable, flattening one level.
      *
-     * @template GenericInner
      * @template GenericResult
-     * @param callable(GenericInner): GenericResult $callback <p>
-     * Callback function to run for each element in each ArrayList.
-     * </p>
-     * @return self<GenericResult> after applying the callback function to each one.
+     * @param callable(value-of<GenericItem>): GenericResult $callback
+     * @return self<GenericResult>
      */
     public function flatMap(callable $callback): self
     {
         $mapped = [];
 
-        /** @var list<GenericInner> $item */
+        /** @var iterable<value-of<GenericItem>> $item */
         foreach ($this->items as $item) {
-            $mapped = array_merge(
-                $mapped,
-                array_map($callback, $item),
-            );
+            foreach ($item as $inner) {
+                $mapped[] = $callback($inner);
+            }
         }
 
         return new self($mapped);
@@ -136,10 +132,6 @@ class ArrayList implements IteratorAggregate, Countable
     }
 
     /**
-     * @return self<GenericItem>
-     */
-
-    /**
      * Return an ArrayList with elements in reverse order
      *
      * @return self<GenericItem>
@@ -150,13 +142,6 @@ class ArrayList implements IteratorAggregate, Countable
             array_reverse($this->items),
         );
     }
-
-    /**
-     * @template GenericResult
-     * @param callable(GenericResult $carry, GenericItem $item): GenericResult $callable
-     * @param GenericResult $initial
-     * @return GenericResult
-     */
 
     /**
      * Iteratively reduce the array to a single value using a callback function
@@ -210,10 +195,16 @@ class ArrayList implements IteratorAggregate, Countable
         if ($condition === null) {
             $key = array_key_last($this->items);
 
-            return $this->items[$key] ?? null;
+            return $key === null ? null : $this->items[$key];
         }
 
-        return $this->reverse()->first($condition);
+        for ($i = count($this->items) - 1; $i >= 0; $i--) {
+            if ($condition($this->items[$i])) {
+                return $this->items[$i];
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -221,7 +212,7 @@ class ArrayList implements IteratorAggregate, Countable
      */
     public function isEmpty(): bool
     {
-        return $this->count() === 0;
+        return $this->items === [];
     }
 
     /**
@@ -229,7 +220,7 @@ class ArrayList implements IteratorAggregate, Countable
      */
     public function isNotEmpty(): bool
     {
-        return $this->count() > 0;
+        return $this->items !== [];
     }
 
     /**
@@ -294,7 +285,7 @@ class ArrayList implements IteratorAggregate, Countable
     {
         $index = array_search($item, $this->items, true);
 
-        return $index ?: throw new OutOfRangeException("No matching item found in the list");
+        return $index !== false ? $index : throw new OutOfRangeException("No matching item found in the list");
     }
 
     /**
@@ -321,7 +312,11 @@ class ArrayList implements IteratorAggregate, Countable
      */
     public function diff(self ...$others): self
     {
-        $diff = array_diff($this->items, ...$this->plain($others));
+        $combined = array_merge(...$this->plain($others));
+        $diff = array_filter(
+            $this->items,
+            fn($item) => !in_array($item, $combined, true),
+        );
 
         return new self(array_values($diff));
     }
@@ -332,7 +327,11 @@ class ArrayList implements IteratorAggregate, Countable
      */
     public function intersect(self ...$others): self
     {
-        $intersection = array_intersect($this->items, ...$this->plain($others));
+        $lists = $this->plain($others);
+        $intersection = array_filter(
+            $this->items,
+            fn($item) => array_all($lists, fn(array $list) => in_array($item, $list, true)),
+        );
 
         return new self(array_values($intersection));
     }
