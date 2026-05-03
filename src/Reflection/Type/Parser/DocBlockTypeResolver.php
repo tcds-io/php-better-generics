@@ -11,6 +11,7 @@ use PHPStan\PhpDocParser\Ast\Type\GenericTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\IdentifierTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\IntersectionTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\NullableTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\ObjectShapeNode;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
 use PHPStan\PhpDocParser\Lexer\Lexer;
@@ -144,6 +145,16 @@ final class DocBlockTypeResolver
     {
         $node = $this->parseType($shape);
 
+        if ($node instanceof ObjectShapeNode) {
+            $members = [];
+
+            foreach ($node->items as $item) {
+                $members[(string) $item->keyName] = self::renderType($item->valueType);
+            }
+
+            return ['object', $members];
+        }
+
         if (!$node instanceof ArrayShapeNode) {
             return [self::renderType($node), []];
         }
@@ -271,6 +282,28 @@ final class DocBlockTypeResolver
             $args = implode(', ', array_map(self::renderType(...), $node->genericTypes));
 
             return $node->type->name . '<' . $args . '>';
+        }
+
+        if ($node instanceof ArrayShapeNode) {
+            $items = [];
+
+            foreach ($node->items as $item) {
+                $key = $item->keyName !== null ? (string) $item->keyName : null;
+                $value = self::renderType($item->valueType);
+                $items[] = $key !== null ? "$key: $value" : $value;
+            }
+
+            return $node->kind . '{ ' . implode(', ', $items) . ' }';
+        }
+
+        if ($node instanceof ObjectShapeNode) {
+            $items = [];
+
+            foreach ($node->items as $item) {
+                $items[] = (string) $item->keyName . ': ' . self::renderType($item->valueType);
+            }
+
+            return 'object{ ' . implode(', ', $items) . ' }';
         }
 
         return (string) $node;

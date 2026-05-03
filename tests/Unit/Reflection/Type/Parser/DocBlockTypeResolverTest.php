@@ -97,7 +97,7 @@ class DocBlockTypeResolverTest extends TestCase
     #[Test] public function shape_member_strings_with_nested_shape(): void
     {
         $this->assertSame(
-            ['array', ['user' => 'array{name: string}']],
+            ['array', ['user' => 'array{ name: string }']],
             $this->resolver->shapeMemberStrings('array{user: array{name: string}}'),
         );
     }
