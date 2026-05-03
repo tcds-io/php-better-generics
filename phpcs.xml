@@ -77,6 +77,17 @@
         <exclude-pattern>tests/**</exclude-pattern>
     </rule>
 
+    <!-- Test fixtures are inputs to reflection tests and intentionally use FQNs and explicit type names. -->
+    <rule ref="SlevomatCodingStandard.Classes.RequireSelfReference">
+        <exclude-pattern>tests/Fixtures/*</exclude-pattern>
+    </rule>
+    <rule ref="SlevomatCodingStandard.Commenting.UselessFunctionDocComment">
+        <exclude-pattern>tests/Fixtures/*</exclude-pattern>
+    </rule>
+    <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint.UselessAnnotation">
+        <exclude-pattern>tests/Fixtures/*</exclude-pattern>
+    </rule>
+
     <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses">
         <properties>
             <property name="searchAnnotations" value="true"/>
