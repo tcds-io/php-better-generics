@@ -51,18 +51,19 @@ class ReflectionFunction extends OriginalReflectionFunction
     }
 
     /**
-     * @template T
-     * @param Closure(mixed...): T $closure
+     * Invokes a closure passing only the named entries of $params that match
+     * the closure's parameter names. The return type is not statically tied
+     * to the closure (PHPStan can't bind a variadic-mixed template across
+     * arbitrary signatures), so callers should `@var` the result if needed.
+     *
      * @param array<string, mixed> $params
-     * @return T
      */
-    public static function call(Closure $closure, array $params)
+    public static function call(Closure $closure, array $params): mixed
     {
         $reflection = new self($closure);
         $names = $reflection->getParameterNames();
         $needed = array_intersect_key($params, array_flip($names));
 
-        /** @var T */
         return $reflection->invoke(...$needed);
     }
 

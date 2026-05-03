@@ -104,31 +104,27 @@ class ReflectionClass extends OriginalReflectionClass
     }
 
     /**
+     * Maps each declared @template name to the concrete type bound at
+     * construction time via the positional $generics argument. Bounds
+     * (`@template T of Foo`) are dropped here — preserved by the resolver
+     * but not yet consumed by the rest of the layer; that's a follow-up.
+     *
      * @param list<string> $generics
      * @return array<string, string>
      */
     private function templates(array $generics = []): array
     {
-        $docblock = $this->getDocComment() ?: '';
-        preg_match_all('/@template\s+(\w+)(?:\s+of\s+(\w+))?/', $docblock, $matches);
-        $indexes = array_keys($matches[1]);
+        $declared = DocBlockTypeResolver::instance()->templates($this->getDocComment() ?: '');
+        $names = array_keys($declared);
+        $resolved = [];
 
-        $templates = [];
-
-        foreach ($indexes as $index) {
-            $key = $matches[1][$index];
-            $value = $matches[2][$index];
-
-            $templates[$key] = $value ?: 'mixed';
-        }
-
-        foreach (array_keys($templates) as $position => $template) {
-            $templates[$template] = $generics[$position] ?? throw new BetterGenericException(
-                "No generic defined for template `$template`",
+        foreach ($names as $position => $name) {
+            $resolved[$name] = $generics[$position] ?? throw new BetterGenericException(
+                "No generic defined for template `$name`",
             );
         }
 
-        return $templates;
+        return $resolved;
     }
 
     /**
@@ -136,19 +132,6 @@ class ReflectionClass extends OriginalReflectionClass
      */
     private function aliases(): array
     {
-        $docblock = $this->getDocComment() ?: '';
-        preg_match_all('/@phpstan-type\s+(\w+)\s+(.*)?/', $docblock, $matches);
-        $indexes = array_keys($matches[1]);
-
-        $types = [];
-
-        foreach ($indexes as $index) {
-            $name = $matches[1][$index];
-            $type = $matches[2][$index];
-
-            $types[$name] = $type;
-        }
-
-        return $types;
+        return DocBlockTypeResolver::instance()->typeAliases($this->getDocComment() ?: '');
     }
 }
