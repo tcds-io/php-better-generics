@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tcds\Io\Generic\Reflection\Type;
 
-use Tcds\Io\Generic\Reflection\Type\Parser\TypeParser;
+use Tcds\Io\Generic\Reflection\Type\Parser\DocBlockTypeResolver;
 
 class ShapeReflectionType extends ReflectionType
 {
@@ -39,7 +39,7 @@ class ShapeReflectionType extends ReflectionType
      */
     private static function shapeFqn(TypeContext $context, string $shape): array
     {
-        [$type, $namedParams] = TypeParser::getParamMapFromShape($shape);
+        [$type, $namedParams] = DocBlockTypeResolver::instance()->shapeMemberStrings($shape);
 
         $params = [];
 

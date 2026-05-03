@@ -9,7 +9,7 @@ use ReflectionClass as OriginalReflectionClass;
 use ReflectionProperty as OriginalReflectionProperty;
 use ReturnTypeWillChange;
 use Tcds\Io\Generic\BetterGenericException;
-use Tcds\Io\Generic\Reflection\Type\Parser\TypeParser;
+use Tcds\Io\Generic\Reflection\Type\Parser\DocBlockTypeResolver;
 use Tcds\Io\Generic\Reflection\Type\TypeContext;
 
 /**
@@ -31,7 +31,7 @@ class ReflectionClass extends OriginalReflectionClass
         /**
          * @var class-string $class
          */
-        [$class, $generics] = TypeParser::getGenericTypes($type);
+        [$class, $generics] = DocBlockTypeResolver::instance()->genericTypeParts($type);
 
         parent::__construct($class);
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tcds\Io\Generic\Reflection\Type;
 
-use Tcds\Io\Generic\Reflection\Type\Parser\TypeParser;
+use Tcds\Io\Generic\Reflection\Type\Parser\DocBlockTypeResolver;
 
 class GenericReflectionType extends ReflectionType
 {
@@ -18,7 +18,7 @@ class GenericReflectionType extends ReflectionType
 
     public static function from(TypeContext $context, string $type): self
     {
-        [$type, $generics] = TypeParser::getGenericTypes($type);
+        [$type, $generics] = DocBlockTypeResolver::instance()->genericTypeParts($type);
 
         return new self(
             type: $context->type($type),
