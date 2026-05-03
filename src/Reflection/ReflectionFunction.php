@@ -73,11 +73,14 @@ class ReflectionFunction extends OriginalReflectionFunction
 
     public function typeContext(): TypeContext
     {
+        $scope = $this->getClosureScopeClass();
+
         return new TypeContext(
             namespace: $this->getNamespaceName(),
             filename: $this->getFileName() ?: '',
             templates: [],
             aliases: [],
+            scopeClass: $scope?->name,
         );
     }
 }

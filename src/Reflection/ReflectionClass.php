@@ -99,6 +99,7 @@ class ReflectionClass extends OriginalReflectionClass
             filename: $this->getFileName() ?: '',
             templates: $this->templates,
             aliases: $this->aliases,
+            scopeClass: $this->name,
         );
     }
 
