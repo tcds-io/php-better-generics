@@ -105,16 +105,29 @@ class ReflectionClass extends OriginalReflectionClass
 
     /**
      * Maps each declared @template name to the concrete type bound at
-     * construction time via the positional $generics argument. Bounds
-     * (`@template T of Foo`) are dropped here — preserved by the resolver
-     * but not yet consumed by the rest of the layer; that's a follow-up.
+     * construction time via the positional $generics argument, then
+     * augments the map with bindings inherited via @extends/@implements.
+     *
+     * Bounds (`@template T of Foo`) are dropped here — preserved by the
+     * resolver but not yet consumed by the rest of the layer; that's a
+     * follow-up.
+     *
+     * Inheritance handling: for each `@extends Parent<Arg, ...>` (or
+     * `@implements`) the args are resolved through this class's own
+     * already-bound templates and `use` statements, then a recursive
+     * ReflectionClass for the parent is constructed and its templates
+     * are merged in. The child's own templates take precedence on name
+     * collision; parent templates fill in everything else.
      *
      * @param list<string> $generics
      * @return array<string, string>
      */
     private function templates(array $generics = []): array
     {
-        $declared = DocBlockTypeResolver::instance()->templates($this->getDocComment() ?: '');
+        $resolver = DocBlockTypeResolver::instance();
+        $docblock = $this->getDocComment() ?: '';
+
+        $declared = $resolver->templates($docblock);
         $names = array_keys($declared);
         $resolved = [];
 
@@ -122,6 +135,43 @@ class ReflectionClass extends OriginalReflectionClass
             $resolved[$name] = $generics[$position] ?? throw new BetterGenericException(
                 "No generic defined for template `$name`",
             );
+        }
+
+        $inheritanceContext = new TypeContext(
+            namespace: $this->getNamespaceName(),
+            filename: $this->getFileName() ?: '',
+            templates: $resolved,
+            aliases: [],
+            scopeClass: $this->name,
+        );
+
+        foreach ($resolver->inheritedGenerics($docblock, $inheritanceContext) as $parentFqn => $args) {
+            if ($args === []) {
+                continue;
+            }
+
+            $parentType = sprintf('%s<%s>', $parentFqn, implode(', ', $args));
+            $parentReflection = new self($parentType);
+
+            // Child bindings win on name collision.
+            $resolved += $parentReflection->templates;
+        }
+
+        // Transitive inheritance: a class without its own @extends still
+        // inherits whatever bindings its PHP parent class resolved (e.g.
+        // AdminUserList extends UserListBase where UserListBase has
+        // `@extends Collection<User>`). If the parent itself has unbound
+        // templates (raw generic class with no args), it's not constructible
+        // and we just skip — no inheritance is possible at that level.
+        $phpParent = parent::getParentClass();
+        if ($phpParent !== false) {
+            try {
+                $resolved += new self($phpParent->name)->templates;
+            } catch (BetterGenericException $e) {
+                // Parent declares @template but provides no @extends args
+                // for them — leave its templates unresolved here.
+                unset($e);
+            }
         }
 
         return $resolved;
