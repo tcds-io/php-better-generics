@@ -88,6 +88,26 @@
         <exclude-pattern>tests/Fixtures/*</exclude-pattern>
     </rule>
 
+    <!-- UseStatements fixtures intentionally exercise grouped/aliased/function/const imports. -->
+    <rule ref="SlevomatCodingStandard.Namespaces.DisallowGroupUse">
+        <exclude-pattern>tests/Fixtures/UseStatements/*</exclude-pattern>
+    </rule>
+    <rule ref="SlevomatCodingStandard.Namespaces.MultipleUsesPerLine">
+        <exclude-pattern>tests/Fixtures/UseStatements/*</exclude-pattern>
+    </rule>
+    <rule ref="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses">
+        <exclude-pattern>tests/Fixtures/UseStatements/*</exclude-pattern>
+    </rule>
+    <rule ref="SlevomatCodingStandard.Namespaces.NamespaceSpacing">
+        <exclude-pattern>tests/Fixtures/UseStatements/*</exclude-pattern>
+    </rule>
+    <rule ref="SlevomatCodingStandard.Namespaces.UseSpacing">
+        <exclude-pattern>tests/Fixtures/UseStatements/*</exclude-pattern>
+    </rule>
+    <rule ref="SlevomatCodingStandard.Namespaces.UseDoesNotStartWithBackslash">
+        <exclude-pattern>tests/Fixtures/UseStatements/*</exclude-pattern>
+    </rule>
+
     <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses">
         <properties>
             <property name="searchAnnotations" value="true"/>
