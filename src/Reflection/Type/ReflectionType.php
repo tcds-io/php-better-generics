@@ -12,7 +12,7 @@ use Tcds\Io\Generic\Reflection\ReflectionFunctionParameter;
 use Tcds\Io\Generic\Reflection\ReflectionMethod;
 use Tcds\Io\Generic\Reflection\ReflectionMethodParameter;
 use Tcds\Io\Generic\Reflection\ReflectionProperty;
-use Tcds\Io\Generic\Reflection\Type\Parser\TypeParser;
+use Tcds\Io\Generic\Reflection\Type\Parser\DocBlockTypeResolver;
 use Traversable;
 
 class ReflectionType extends OriginalReflectionType
@@ -57,9 +57,9 @@ class ReflectionType extends OriginalReflectionType
         TypeContext $context,
     ): self {
         return self::create(
-            type: TypeParser::getParamFromDocblock(
+            type: DocBlockTypeResolver::instance()->paramTypeStringFromDocblock(
                 docblock: $functionOrMethod->getDocComment() ?: '',
-                name: $paramOrProperty->name ?: '',
+                paramName: $paramOrProperty->name ?: '',
             ) ?: $paramOrProperty->getOriginalType(),
             context: $context,
         );
@@ -69,7 +69,7 @@ class ReflectionType extends OriginalReflectionType
         ReflectionMethod|ReflectionFunction $method,
         TypeContext $context,
     ): self {
-        $type = TypeParser::getReturnFromDocblock(
+        $type = DocBlockTypeResolver::instance()->returnTypeStringFromDocblock(
             docblock: $method->getDocComment() ?: '',
         ) ?? $method->getOriginalReturnType();
 
@@ -116,7 +116,7 @@ class ReflectionType extends OriginalReflectionType
 
     public static function isGeneric(string $type): bool
     {
-        [, $generics] = TypeParser::getGenericTypes($type);
+        [, $generics] = DocBlockTypeResolver::instance()->genericTypeParts($type);
 
         return !empty($generics);
     }
@@ -128,7 +128,7 @@ class ReflectionType extends OriginalReflectionType
 
     public static function isList(string $type): bool
     {
-        [$type] = TypeParser::getGenericTypes($type);
+        [$type] = DocBlockTypeResolver::instance()->genericTypeParts($type);
 
         return ($type === 'list')
             || ($type === 'iterable')
