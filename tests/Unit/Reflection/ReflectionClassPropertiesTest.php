@@ -135,5 +135,4 @@ class ReflectionClassPropertiesTest extends BetterGenericTestCase
             $properties,
         );
     }
-
 }

@@ -81,7 +81,6 @@ class GenericTypeParser
         foreach ($unionTypes as [$main, $generics]) {
             $mains[$main] = $main;
 
-            // $allGenerics = array_merge($allGenerics, $generics);
             foreach ($generics as $index => $generic) {
                 $allGenerics[$index][$generic] = $generic;
             }
@@ -89,7 +88,7 @@ class GenericTypeParser
 
         return [
             join('|', $mains),
-            array_map(fn($generics) => join('|', $generics), $allGenerics),
+            array_values(array_map(fn(array $generics) => join('|', $generics), $allGenerics)),
         ];
     }
 }

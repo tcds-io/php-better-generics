@@ -19,6 +19,13 @@ class ArrayListIndexOfTest extends BetterGenericTestCase
         $this->assertEquals(1, $index);
     }
 
+    #[Test] public function given_an_item_at_index_zero_then_return_zero(): void
+    {
+        $list = listOf("first", "second", "third");
+
+        $this->assertSame(0, $list->indexOf("first"));
+    }
+
     #[Test] public function given_an_item_when_it_is_not_present_in_the_list_then_throw_exception(): void
     {
         $list = listOf("1", "2", "3");

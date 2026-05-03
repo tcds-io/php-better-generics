@@ -68,6 +68,16 @@ class MutableMapTest extends TestCase
         );
     }
 
+    #[Test] public function clear_empties_the_map(): void
+    {
+        /** @var MutableMap<string, Bar> $map */
+        $map = mutableMapOf(["one" => new Bar("1"), "two" => new Bar("2")]);
+
+        $map->clear();
+
+        $this->assertEquals([], $map->entries());
+    }
+
     #[Test] public function unset_value_on_map(): void
     {
         /** @var MutableMap<string, Bar> $map */

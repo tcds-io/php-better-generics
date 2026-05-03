@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Test\Tcds\Io\Generic\Unit;
 
 use LogicException;
+use OutOfRangeException;
 use PHPUnit\Framework\Attributes\Test;
 use Tcds\Io\Generic\Map;
 use Test\Tcds\Io\Generic\BetterGenericTestCase;
@@ -126,6 +127,57 @@ class MapTest extends BetterGenericTestCase
 
         $this->assertEquals(new Bar("1"), $map["one"]);
         $this->assertEquals(null, $map["ten"]);
+    }
+
+    #[Test] public function get_or_throw_returns_value_or_raises(): void
+    {
+        /** @var Map<string, Bar> $map */
+        $map = mapOf(["one" => new Bar("1")]);
+
+        $this->assertEquals(new Bar("1"), $map->getOrThrow("one"));
+
+        $this->expectThrows(OutOfRangeException::class, fn () => $map->getOrThrow("missing"));
+    }
+
+    #[Test] public function count_and_emptiness(): void
+    {
+        /** @var Map<string, Bar> $empty */
+        $empty = mapOf([]);
+        /** @var Map<string, Bar> $map */
+        $map = mapOf(["one" => new Bar("1"), "two" => new Bar("2")]);
+
+        $this->assertSame(0, $empty->count());
+        $this->assertCount(0, $empty);
+        $this->assertTrue($empty->isEmpty());
+        $this->assertFalse($empty->isNotEmpty());
+
+        $this->assertSame(2, $map->count());
+        $this->assertCount(2, $map);
+        $this->assertFalse($map->isEmpty());
+        $this->assertTrue($map->isNotEmpty());
+    }
+
+    #[Test] public function filter_keeps_matching_entries(): void
+    {
+        /** @var Map<string, int> $map */
+        $map = mapOf(["one" => 1, "two" => 2, "three" => 3]);
+
+        $result = $map->filter(fn (int $value) => $value > 1);
+
+        $this->assertEquals(["two" => 2, "three" => 3], $result->entries());
+    }
+
+    #[Test] public function for_each_iterates_with_value_and_key(): void
+    {
+        /** @var Map<string, int> $map */
+        $map = mapOf(["one" => 1, "two" => 2]);
+        $collected = [];
+
+        $map->forEach(function (int $value, string $key) use (&$collected): void {
+            $collected[$key] = $value;
+        });
+
+        $this->assertEquals(["one" => 1, "two" => 2], $collected);
     }
 
     #[Test] public function given_a_map_then_transform_its_values(): void

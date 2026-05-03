@@ -40,6 +40,11 @@ class MutableMap extends Map
         unset($this->entries[$key]);
     }
 
+    public function clear(): void
+    {
+        $this->entries = [];
+    }
+
     /**
      * @param GenericKey $offset
      * @param GenericValue $value

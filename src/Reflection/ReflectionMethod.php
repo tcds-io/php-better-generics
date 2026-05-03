@@ -58,10 +58,15 @@ class ReflectionMethod extends OriginalReflectionMethod
     #[Override]
     public static function createFromMethodName(string $method): static
     {
-        [$class, $method] = explode('::', $method);
+        if (!str_contains($method, '::')) {
+            throw new BetterGenericException("Method name must be in the form Class::method, got `$method`");
+        }
+
+        [$class, $methodName] = explode('::', $method, 2);
         $reflection = new ReflectionClass($class);
 
-        return $reflection->getMethod($method);
+        /** @var static */
+        return $reflection->getMethod($methodName);
     }
 
     public function getOriginalReturnType(): string

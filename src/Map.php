@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Tcds\Io\Generic;
 
 use ArrayAccess;
+use Countable;
 use LogicException;
+use OutOfRangeException;
 use Override;
 
 /**
@@ -14,7 +16,7 @@ use Override;
  * @phpstan-type Entries array<GenericKey, GenericValue>
  * @implements ArrayAccess<GenericKey, GenericValue>
  */
-class Map implements ArrayAccess
+class Map implements ArrayAccess, Countable
 {
     /**
      * @param array<GenericKey, GenericValue> $entries
@@ -64,6 +66,54 @@ class Map implements ArrayAccess
     public function get($key)
     {
         return $this->entries[$key] ?? null;
+    }
+
+    /**
+     * @param GenericKey $key
+     * @return GenericValue
+     * @noinspection PhpMissingParamTypeInspection
+     */
+    public function getOrThrow($key)
+    {
+        return array_key_exists($key, $this->entries)
+            ? $this->entries[$key]
+            : throw new OutOfRangeException("Key <$key> does not exist");
+    }
+
+    public function count(): int
+    {
+        return count($this->entries);
+    }
+
+    public function isEmpty(): bool
+    {
+        return $this->entries === [];
+    }
+
+    public function isNotEmpty(): bool
+    {
+        return $this->entries !== [];
+    }
+
+    /**
+     * @param callable(GenericValue $value, GenericKey $key): bool $callback
+     * @return self<GenericKey, GenericValue>
+     */
+    public function filter(callable $callback): self
+    {
+        $filtered = array_filter($this->entries, $callback, ARRAY_FILTER_USE_BOTH);
+
+        return new static($filtered);
+    }
+
+    /**
+     * @param callable(GenericValue $value, GenericKey $key): void $callback
+     */
+    public function forEach(callable $callback): void
+    {
+        foreach ($this->entries as $key => $value) {
+            $callback($value, $key);
+        }
     }
 
     /**
