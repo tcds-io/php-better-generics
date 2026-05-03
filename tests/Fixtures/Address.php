@@ -10,7 +10,10 @@ readonly class Address
     {
     }
 
-    public static function copy(self $address): self
+    /**
+     * @param \Test\Tcds\Io\Generic\Fixtures\Address $address
+     */
+    public static function copy(Address $address): Address
     {
         return $address;
     }
