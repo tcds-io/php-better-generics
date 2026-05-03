@@ -6,12 +6,24 @@ namespace Test\Tcds\Io\Generic\Unit\Reflection\Type\Parser;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Tcds\Io\Generic\Reflection\Type\Parser\ShapeTypeParser;
+use Tcds\Io\Generic\Reflection\Type\Parser\DocBlockTypeResolver;
 use Test\Tcds\Io\Generic\Fixtures\Address;
 use Test\Tcds\Io\Generic\Fixtures\Company;
 
+/**
+ * Regression suite that originally exercised the now-deleted
+ * ShapeTypeParser. Routes through DocBlockTypeResolver to keep coverage
+ * of nested shape parsing across array{...} and object{...} variants.
+ */
 class ShapeTypeParserTest extends TestCase
 {
+    private DocBlockTypeResolver $resolver;
+
+    protected function setUp(): void
+    {
+        $this->resolver = new DocBlockTypeResolver();
+    }
+
     #[Test]
     public function parse_shape_array(): void
     {
@@ -22,7 +34,7 @@ class ShapeTypeParserTest extends TestCase
         ];
         $type = shape('array', $params);
 
-        $parsed = ShapeTypeParser::parse($type);
+        $parsed = $this->resolver->shapeMemberStrings($type);
 
         $this->assertEquals(['array', $params], $parsed);
     }
@@ -42,7 +54,7 @@ class ShapeTypeParserTest extends TestCase
         ];
         $type = shape('array', $params);
 
-        $parsed = ShapeTypeParser::parse($type);
+        $parsed = $this->resolver->shapeMemberStrings($type);
 
         $this->assertEquals(['array', $params], $parsed);
     }
@@ -62,7 +74,7 @@ class ShapeTypeParserTest extends TestCase
         ];
         $type = shape('object', $params);
 
-        $parsed = ShapeTypeParser::parse($type);
+        $parsed = $this->resolver->shapeMemberStrings($type);
 
         $this->assertEquals(['object', $params], $parsed);
     }
